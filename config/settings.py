@@ -121,7 +121,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-LOGIN_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'pos_login_redirect'
 LOGOUT_REDIRECT_URL = 'home'
 
 # Default primary key field type
