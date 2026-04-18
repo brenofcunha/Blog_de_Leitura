@@ -3,13 +3,101 @@
 {% block title %}Programador Pragmático | Blog de Leitura{% endblock %}
 
 {% block content %}
-<section class="card">
-    <p class="eyebrow">Programador Pragmático</p>
-    <h1>Resumos de capítulos</h1>
-    <p class="lead">
-        Esta página foi preparada para receber seus resumos sobre os capítulos do livro.
-        Você pode começar adicionando os principais aprendizados e referências.
-    </p>
-    <a class="button button-secondary" href="{% url 'home' %}">Voltar para a página inicial</a>
-</section>
+<header class="site-header">
+    <div class="shell site-header-inner">
+        <a href="{% url 'home' %}" class="brand">Blog de Leitura</a>
+        <nav class="main-nav" aria-label="Menu da categoria">
+            <a href="#destaque">Destaque</a>
+            <a href="#posts">Posts</a>
+            <a href="#indice">Indice</a>
+        </nav>
+        <form method="get" class="header-search" aria-label="Pesquisar">
+            <input type="search" placeholder="Pesquisar no tema" aria-label="Pesquisar no tema">
+            <button type="button">Buscar</button>
+        </form>
+        <div class="header-auth">
+            <a class="button button-outline" href="{% url 'home' %}">Voltar para home</a>
+        </div>
+    </div>
+</header>
+
+<main class="shell page-content category-page">
+    <section class="category-hero" aria-label="Resumo da categoria">
+        <p class="eyebrow">Categoria</p>
+        <h1>{{ category.title }}</h1>
+        <p class="category-subtitle">{{ category.subtitle }}</p>
+        <p class="lead">{{ category.description }}</p>
+    </section>
+
+    <div class="category-layout">
+        <section class="category-main-content">
+            <article id="destaque" class="featured-post-card">
+                <div class="featured-post-head">
+                    <span class="tag-highlight">Post destaque</span>
+                    <span>{{ featured_post.read_time }}</span>
+                </div>
+                <h2>{{ featured_post.title }}</h2>
+                <p class="meta">{{ featured_post.date }}</p>
+                <p>{{ featured_post.summary }}</p>
+                <div class="featured-actions">
+                    <a class="button" href="#">Ler mais</a>
+                </div>
+                <nav class="post-nav" aria-label="Navegação entre posts">
+                    <a href="#posts">Post anterior</a>
+                    <a href="#posts">Próximo post</a>
+                </nav>
+            </article>
+
+            <section id="posts" class="posts-list-section">
+                <div class="section-head">
+                    <h2>Posts da categoria</h2>
+                    <p>Resumos e anotações organizados para consulta rápida.</p>
+                </div>
+
+                <div class="post-list-grid">
+                    {% for post in posts %}
+                        <article class="post-list-card">
+                            <h3>{{ post.title }}</h3>
+                            <p class="meta">{{ post.date }} - {{ post.read_time }}</p>
+                            <p>{{ post.summary }}</p>
+                            <a class="button button-soft" href="#">Ler mais</a>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        </section>
+        <aside id="indice" class="category-sidebar">
+            <section class="sidebar-card">
+                <h3>Indice de capítulos</h3>
+                <ol>
+                    {% for chapter in chapters %}
+                        <li><a href="#">{{ chapter }}</a></li>
+                    {% endfor %}
+                </ol>
+            </section>
+
+            <section class="sidebar-card">
+                <h3>Progresso de leitura</h3>
+                <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ category.reading_progress }}" data-progress="{{ category.reading_progress }}">
+                <div class="progress-fill"></div>
+                </div>
+                <p>{{ category.reading_progress }}% concluido</p>
+            </section>
+        </aside>
+    </div>
+</main>
+
+<script>
+    document.querySelectorAll('.progress-track').forEach((track) => {
+        const value = Number(track.dataset.progress || 0);
+        const progress = Math.max(0, Math.min(100, value));
+        const fill = track.querySelector('.progress-fill');
+
+        if (fill) {
+            fill.style.width = `${progress}%`;
+        }
+
+        track.setAttribute('aria-valuenow', String(progress));
+    });
+</script>
 {% endblock %}
