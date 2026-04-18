@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
 
 
 CATEGORIES = [
@@ -171,3 +172,21 @@ def home(request):
 
 def programador_pragmatico(request):
     return render(request, "leitura/programador_pragmatico.html")
+
+
+@login_required
+def pos_login_redirect(request):
+    if request.user.is_staff or request.user.is_superuser:
+        return redirect("painel_admin")
+    return redirect("home")
+
+
+@login_required
+def painel_admin(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect("home")
+
+    context = {
+        "categories": [category["title"] for category in CATEGORIES],
+    }
+    return render(request, "leitura/painel_admin.html", context)
