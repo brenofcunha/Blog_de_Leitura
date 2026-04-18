@@ -7,10 +7,10 @@ class LeituraPagesTests(TestCase):
         response = self.client.get(reverse("home"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Entrar em Programator Pragmático")
+        self.assertContains(response, "Entrar em Programador Pragmático")
 
-    def test_programator_pragmatico_page_loads(self):
-        response = self.client.get(reverse("programator_pragmatico"))
+    def test_programador_pragmatico_page_loads(self):
+        response = self.client.get(reverse("programador_pragmatico"))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Resumos de capítulos")

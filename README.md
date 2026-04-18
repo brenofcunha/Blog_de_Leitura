@@ -12,4 +12,4 @@ python manage.py runserver
 ## Páginas iniciais
 
 - `/` — página de entrada estilizada.
-- `/programator-pragmatico/` — espaço inicial para os resumos do livro *Programator Pragmático*.
+- `/programador-pragmatico/` — espaço inicial para os resumos do livro *Programador Pragmático*.
