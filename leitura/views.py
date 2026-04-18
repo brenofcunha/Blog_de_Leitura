@@ -171,7 +171,70 @@ def home(request):
 
 
 def programador_pragmatico(request):
-    return render(request, "leitura/programador_pragmatico.html")
+    category = {
+        "title": "Programador Pragmático",
+        "subtitle": "Lições práticas para escrever software sustentável",
+        "description": (
+            "Uma trilha de leitura com foco em decisões reais de engenharia,"
+            " colaboração em equipe e melhoria contínua do código."
+        ),
+        "reading_progress": 42,
+    }
+
+    posts = [
+        {
+            "slug": "mentalidade-pragmatica",
+            "title": "Mentalidade pragmática no dia a dia",
+            "date": "18 abr 2026",
+            "summary": "Como transformar princípios do livro em hábitos simples de execução.",
+            "is_featured": True,
+            "read_time": "8 min",
+        },
+        {
+            "slug": "tracer-bullets",
+            "title": "Tracer bullets para validar ideias rápido",
+            "date": "16 abr 2026",
+            "summary": "Valide hipóteses com pequenos incrementos antes de escalar a solução.",
+            "is_featured": False,
+            "read_time": "6 min",
+        },
+        {
+            "slug": "ortogonalidade",
+            "title": "Ortogonalidade e baixo acoplamento",
+            "date": "14 abr 2026",
+            "summary": "Estruture módulos independentes para evoluir o projeto com segurança.",
+            "is_featured": False,
+            "read_time": "7 min",
+        },
+        {
+            "slug": "automacao",
+            "title": "Automação de tarefas repetitivas",
+            "date": "12 abr 2026",
+            "summary": "Scripts e checklists que economizam tempo e reduzem erros humanos.",
+            "is_featured": False,
+            "read_time": "5 min",
+        },
+    ]
+
+    featured_post = next((post for post in posts if post["is_featured"]), posts[0])
+    post_list = [post for post in posts if post["slug"] != featured_post["slug"]]
+
+    chapters = [
+        "Capítulo 1 - Uma filosofia pragmática",
+        "Capítulo 2 - Um jeito pragmático",
+        "Capítulo 3 - A caixa de ferramentas",
+        "Capítulo 4 - Pragmatismo paranoico",
+    ]
+
+    context = {
+        "category": category,
+        "featured_post": featured_post,
+        "posts": post_list,
+        "chapters": chapters,
+        # Estrutura pronta para trocar por consulta ao banco futuramente.
+        # Exemplo: category = Category.objects.prefetch_related("posts").get(slug=...)
+    }
+    return render(request, "leitura/programador_pragmatico.html", context)
 
 
 @login_required
