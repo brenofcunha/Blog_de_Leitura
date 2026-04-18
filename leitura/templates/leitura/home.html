@@ -3,12 +3,44 @@
 {% block title %}Início | Blog de Leitura{% endblock %}
 
 {% block content %}
-<section class="card hero">
+<header class="page-header">
     <p class="eyebrow">Blog de Leitura</p>
-    <h1>Bem-vindo ao meu espaço de estudos</h1>
+    <h1>Biblioteca de estudos</h1>
     <p class="lead">
-        Um ambiente simples e elegante para organizar ideias, aprendizados e resumos dos livros que estou lendo.
+        Navegue como visitante ou faça login para gerenciar seu progresso. Escolha um card para abrir a leitura.
     </p>
-    <a class="button" href="{% url 'programador_pragmatico' %}">Entrar em Programador Pragmático</a>
+</header>
+
+<section class="search-panel" aria-label="Pesquisar livros">
+    <form method="get" class="search-form">
+        <input
+            type="search"
+            name="q"
+            value="{{ query }}"
+            placeholder="Pesquisar por título ou assunto"
+            aria-label="Pesquisar livros"
+        >
+        <button class="button" type="submit">Pesquisar</button>
+    </form>
+</section>
+
+<section class="books-grid" aria-label="Lista de livros">
+    {% for book in books %}
+        <article class="book-card">
+            <h2>{{ book.title }}</h2>
+            <p>{{ book.description }}</p>
+
+            {% if book.available and book.link %}
+                <a class="button" href="{% url book.link %}">Abrir página do livro</a>
+            {% else %}
+                <span class="coming-soon">Em breve</span>
+            {% endif %}
+        </article>
+    {% empty %}
+        <article class="book-card book-card-empty">
+            <h2>Nenhum resultado encontrado</h2>
+            <p>Tente outro termo para localizar um livro.</p>
+        </article>
+    {% endfor %}
 </section>
 {% endblock %}

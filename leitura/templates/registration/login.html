@@ -1,0 +1,24 @@
+{% extends "leitura/base.html" %}
+
+{% block title %}Login | Blog de Leitura{% endblock %}
+
+{% block content %}
+<section class="card hero">
+    <p class="eyebrow">Acesso de conta</p>
+    <h1>Entrar no Blog de Leitura</h1>
+
+    {% if form.errors %}
+        <p>Usuário ou senha inválidos. Tente novamente.</p>
+    {% endif %}
+
+    <form method="post" class="login-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="button" type="submit">Entrar</button>
+    </form>
+
+    <p>
+        Quer apenas explorar? <a href="{% url 'home' %}">Continuar como visitante</a>.
+    </p>
+</section>
+{% endblock %}

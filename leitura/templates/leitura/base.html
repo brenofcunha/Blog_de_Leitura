@@ -9,6 +9,14 @@
 </head>
 <body>
     <main class="container">
+        <nav class="auth-nav">
+            {% if user.is_authenticated %}
+                <span>Olá, {{ user.username }}.</span>
+                <a href="{% url 'logout' %}">Sair</a>
+            {% else %}
+                <a href="{% url 'login' %}">Entrar</a>
+            {% endif %}
+        </nav>
         {% block content %}{% endblock %}
     </main>
 </body>
