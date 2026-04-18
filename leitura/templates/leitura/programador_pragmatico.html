@@ -1,0 +1,15 @@
+{% extends "leitura/base.html" %}
+
+{% block title %}Programador Pragmático | Blog de Leitura{% endblock %}
+
+{% block content %}
+<section class="card">
+    <p class="eyebrow">Programador Pragmático</p>
+    <h1>Resumos de capítulos</h1>
+    <p class="lead">
+        Esta página foi preparada para receber seus resumos sobre os capítulos do livro.
+        Você pode começar adicionando os principais aprendizados e referências.
+    </p>
+    <a class="button button-secondary" href="{% url 'home' %}">Voltar para a página inicial</a>
+</section>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "leitura/base.html" %}
+
+{% block title %}Início | Blog de Leitura{% endblock %}
+
+{% block content %}
+<section class="card hero">
+    <p class="eyebrow">Blog de Leitura</p>
+    <h1>Bem-vindo ao meu espaço de estudos</h1>
+    <p class="lead">
+        Um ambiente simples e elegante para organizar ideias, aprendizados e resumos dos livros que estou lendo.
+    </p>
+    <a class="button" href="{% url 'programador_pragmatico' %}">Entrar em Programador Pragmático</a>
+</section>
+{% endblock %}

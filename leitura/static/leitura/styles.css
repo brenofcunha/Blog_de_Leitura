@@ -1,0 +1,83 @@
+:root {
+    --bg: #f3f4f8;
+    --card: #ffffff;
+    --text: #111827;
+    --muted: #4b5563;
+    --primary: #6d28d9;
+    --primary-dark: #5b21b6;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(circle at top, #e9d5ff, var(--bg) 45%);
+    color: var(--text);
+}
+
+.container {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.card {
+    width: min(680px, 100%);
+    background: var(--card);
+    border-radius: 18px;
+    padding: clamp(24px, 5vw, 44px);
+    box-shadow: 0 18px 45px -28px rgba(17, 24, 39, 0.45);
+}
+
+.eyebrow {
+    margin: 0 0 10px;
+    color: var(--primary);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    line-height: 1.2;
+}
+
+.lead {
+    margin: 18px 0 28px;
+    color: var(--muted);
+    line-height: 1.65;
+    font-size: 1.02rem;
+}
+
+.button {
+    display: inline-block;
+    padding: 12px 18px;
+    border-radius: 12px;
+    text-decoration: none;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+.button:hover,
+.button:focus-visible {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.button-secondary {
+    background: #1f2937;
+}
+
+.button-secondary:hover,
+.button-secondary:focus-visible {
+    background: #111827;
+}
