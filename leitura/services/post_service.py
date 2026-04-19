@@ -17,3 +17,9 @@ def can_manage_everything(user) -> bool:
         return True
     profile = getattr(user, "userprofile", None)
     return bool(profile and profile.role == "admin")
+
+
+def can_manage_post(user, post: Post) -> bool:
+    if not user.is_authenticated:
+        return False
+    return can_manage_everything(user) or post.author_id == user.id
