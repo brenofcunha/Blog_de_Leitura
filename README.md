@@ -31,6 +31,8 @@ Oferecer uma plataforma com:
 - Pytest, pytest-django, pytest-cov
 - Black, isort, flake8
 - GitHub Actions
+- Vercel (deploy serverless)
+- django-storages + Amazon S3 (uploads em produção)
 
 ## Settings por ambiente
 
@@ -100,6 +102,10 @@ Para produção, as variáveis abaixo são obrigatórias:
 - `POSTGRES_PASSWORD`
 - `POSTGRES_HOST`
 - `POSTGRES_PORT`
+- `AWS_STORAGE_BUCKET_NAME`
+- `AWS_S3_REGION_NAME`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
 
 Exemplo de produção:
 
@@ -113,6 +119,12 @@ POSTGRES_USER=blog_user
 POSTGRES_PASSWORD=<senha-forte>
 POSTGRES_HOST=<host-postgres>
 POSTGRES_PORT=5432
+AWS_STORAGE_BUCKET_NAME=<bucket>
+AWS_S3_REGION_NAME=us-east-1
+AWS_ACCESS_KEY_ID=<access-key>
+AWS_SECRET_ACCESS_KEY=<secret-key>
+# opcional
+AWS_S3_CUSTOM_DOMAIN=cdn.seudominio.com
 ```
 
 ### 4. Instalar dependências e subir banco
@@ -140,6 +152,46 @@ python manage.py runserver
 Aplicação:
 - público: `http://127.0.0.1:8000/`
 - admin django: `http://127.0.0.1:8000/django-admin/`
+
+## Deploy Vercel (Static + Media)
+
+### Arquivos estáticos
+
+- `STATIC_ROOT` foi definido para `staticfiles/`.
+- O build do Vercel executa automaticamente:
+
+```bash
+python manage.py collectstatic --noinput
+```
+
+- O roteamento está configurado em `vercel.json` para servir `/static/*` a partir de `staticfiles/*`.
+
+### Uploads em produção
+
+- Em desenvolvimento, uploads continuam locais (`MEDIA_ROOT`).
+- Em produção, uploads usam storage externo S3 via `django-storages`.
+- O Django não depende de disco local no Vercel para mídia em produção.
+
+### Variáveis no painel da Vercel
+
+Configure no projeto Vercel:
+
+- `DJANGO_SETTINGS_MODULE=config.settings.production`
+- `DJANGO_SECRET_KEY`
+- `DJANGO_ALLOWED_HOSTS`
+- `DJANGO_CSRF_TRUSTED_ORIGINS`
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `POSTGRES_HOST`
+- `POSTGRES_PORT`
+- `AWS_STORAGE_BUCKET_NAME`
+- `AWS_S3_REGION_NAME`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_S3_CUSTOM_DOMAIN` (opcional)
+
+Nunca versione credenciais reais no repositório.
 
 ## Qualidade e testes
 
