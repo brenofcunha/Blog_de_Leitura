@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Portal de Posts{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'leitura/styles.css' %}">
+</head>
+<body>
+<header class="site-header">
+    <div class="shell site-header-inner">
+        <a href="{% url 'home' %}" class="brand">Portal de Posts</a>
+        <nav class="main-nav" aria-label="Navegacao">
+            <a href="{% url 'home' %}">Inicio</a>
+            <a href="{% url 'post_list' %}">Posts</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'admin_dashboard' %}">Painel</a>
+            {% endif %}
+        </nav>
+        <div class="header-auth">
+            {% if user.is_authenticated %}
+                <span>Olá, {{ user.username }}</span>
+                <a class="button button-outline" href="{% url 'logout' %}">Sair</a>
+            {% else %}
+                <a class="button" href="{% url 'login' %}">Entrar</a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<main class="shell page-content">
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{% extends "views/base.html" %}
+
+{% block title %}Painel | Portal de Posts{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="section-head">
+        <h1>Painel administrativo</h1>
+        <p>Gerencie seus conteudos e acompanhe o status de publicacao.</p>
+    </div>
+
+    <div class="category-grid">
+        <article class="category-card">
+            <h3>Total de posts</h3>
+            <p>{{ total_posts }}</p>
+        </article>
+        <article class="category-card">
+            <h3>Rascunhos</h3>
+            <p>{{ draft_count }}</p>
+        </article>
+        <article class="category-card">
+            <h3>Publicados</h3>
+            <p>{{ published_count }}</p>
+        </article>
+    </div>
+
+    <p style="margin-top: 1rem;">
+        <a class="button" href="{% url 'admin_posts' %}">Gerenciar posts</a>
+    </p>
+</section>
+{% endblock %}
