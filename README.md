@@ -57,6 +57,31 @@ Se `USE_POSTGRES` nao estiver igual a `1`, o projeto usa SQLite como fallback lo
 - Otimizacao de consultas com `select_related`, `prefetch_related` e indices no modelo `Post`.
 - Ajustes responsivos e melhorias visuais de leitura.
 
+## Etapa 7 implementada
+
+- Testes automatizados ampliados para model, view e permissao.
+- Cobertura de testes configurada com meta minima de 70% via `pytest-cov`.
+- Padronizacao com `black`, `isort` e `flake8`.
+- Pipeline de CI no GitHub Actions para lint, format check, import order, migration check e testes.
+- Checklist de testes manuais criticos em `docs/manual-tests.md`.
+
+### Qualidade local (dev)
+
+Instale dependencias de desenvolvimento:
+
+```bash
+python -m pip install -r requirements-dev.txt
+```
+
+Execute validacoes:
+
+```bash
+black --check .
+isort --check-only .
+flake8 .
+pytest
+```
+
 ## Rotas
 
 ### Publicas

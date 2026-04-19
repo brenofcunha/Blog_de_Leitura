@@ -257,3 +257,106 @@ class LeituraPagesTests(TestCase):
         self.assertEqual(response_page_1.status_code, 200)
         self.assertContains(response_page_1, "Pagina 1 de 2")
         self.assertContains(response_page_2, "Pagina 2 de 2")
+
+
+class ModelTests(TestCase):
+    def setUp(self):
+        self.user_model = get_user_model()
+        self.author = self.user_model.objects.create_user(username="model_autor", password="123456789")
+
+    def test_user_creation(self):
+        user = self.user_model.objects.create_user(username="novo_usuario", password="senha_segura")
+        self.assertTrue(user.pk is not None)
+        self.assertEqual(user.username, "novo_usuario")
+
+    def test_post_creation(self):
+        post = Post.objects.create(
+            title="Post de modelo",
+            summary="Resumo",
+            content="Conteudo",
+            status=Post.STATUS_DRAFT,
+            author=self.author,
+        )
+        self.assertTrue(post.pk is not None)
+        self.assertEqual(post.status, Post.STATUS_DRAFT)
+
+    def test_slug_uniqueness(self):
+        first = Post.objects.create(
+            title="Mesmo titulo",
+            summary="Resumo 1",
+            content="Conteudo 1",
+            status=Post.STATUS_DRAFT,
+            author=self.author,
+        )
+        second = Post.objects.create(
+            title="Mesmo titulo",
+            summary="Resumo 2",
+            content="Conteudo 2",
+            status=Post.STATUS_DRAFT,
+            author=self.author,
+        )
+        self.assertNotEqual(first.slug, second.slug)
+
+    def test_publication_status_sets_published_at(self):
+        post = Post.objects.create(
+            title="Publicacao",
+            summary="Resumo",
+            content="Conteudo",
+            status=Post.STATUS_PUBLISHED,
+            author=self.author,
+        )
+        self.assertEqual(post.status, Post.STATUS_PUBLISHED)
+        self.assertIsNotNone(post.published_at)
+
+
+class PermissionTests(TestCase):
+    def setUp(self):
+        self.user_model = get_user_model()
+        self.author_a = self.user_model.objects.create_user(username="autor_a", password="123456789")
+        self.author_b = self.user_model.objects.create_user(username="autor_b", password="123456789")
+        self.admin = self.user_model.objects.create_user(
+            username="admin_user",
+            password="123456789",
+            is_staff=True,
+        )
+        self.post = Post.objects.create(
+            title="Post do autor A",
+            summary="Resumo",
+            content="Conteudo",
+            status=Post.STATUS_DRAFT,
+            author=self.author_a,
+        )
+
+    def test_author_cannot_edit_another_author_post(self):
+        self.client.login(username="autor_b", password="123456789")
+        response = self.client.post(
+            reverse("admin_post_edit", kwargs={"post_id": self.post.id}),
+            {
+                "title": "Edicao indevida",
+                "summary": "Resumo",
+                "content": "Conteudo",
+                "status": Post.STATUS_DRAFT,
+                "action": "save",
+            },
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_admin_can_edit_any_post(self):
+        self.client.login(username="admin_user", password="123456789")
+        response = self.client.post(
+            reverse("admin_post_edit", kwargs={"post_id": self.post.id}),
+            {
+                "title": "Edicao admin",
+                "summary": "Resumo alterado",
+                "content": "Conteudo alterado",
+                "status": Post.STATUS_DRAFT,
+                "action": "save",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.title, "Edicao admin")
+
+    def test_unauthenticated_user_blocked_from_admin_edit(self):
+        response = self.client.get(reverse("admin_post_edit", kwargs={"post_id": self.post.id}))
+        self.assertEqual(response.status_code, 302)
