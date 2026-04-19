@@ -1,0 +1,24 @@
+{% extends "views/base.html" %}
+
+{% block title %}Posts | Portal de Posts{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="section-head">
+        <h1>Todos os posts publicados</h1>
+    </div>
+    <div class="recent-list">
+        {% for post in posts %}
+            <article class="recent-item">
+                <span class="recent-date">{{ post.created_at|date:"d/m/Y" }} por {{ post.author.username }}</span>
+                <h3><a href="{% url 'post_detail' post.slug %}">{{ post.title }}</a></h3>
+                <p>{{ post.summary }}</p>
+            </article>
+        {% empty %}
+            <article class="recent-item">
+                <h3>Nenhum post publicado</h3>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

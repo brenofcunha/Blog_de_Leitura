@@ -1,0 +1,15 @@
+{% extends "views/base.html" %}
+
+{% block title %}{{ post.title }} | Portal de Posts{% endblock %}
+
+{% block content %}
+<article class="card">
+    <p class="eyebrow">Publicado em {{ post.created_at|date:"d/m/Y" }} por {{ post.author.username }}</p>
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.summary }}</p>
+    <hr>
+    <div>
+        {{ post.content|linebreaks }}
+    </div>
+</article>
+{% endblock %}

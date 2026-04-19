@@ -1,0 +1,32 @@
+{% extends "views/base.html" %}
+
+{% block title %}Inicio | Portal de Posts{% endblock %}
+
+{% block content %}
+<section class="hero" aria-label="Abertura">
+    <p class="eyebrow">Area Publica</p>
+    <h1>Portal de leitura com posts publicados</h1>
+    <p class="lead">Acompanhe os conteudos publicados pelos autores.</p>
+    <a class="button" href="{% url 'post_list' %}">Ver todos os posts</a>
+</section>
+
+<section class="section">
+    <div class="section-head">
+        <h2>Posts recentes</h2>
+    </div>
+    <div class="recent-list">
+        {% for post in recent_posts %}
+            <article class="recent-item">
+                <span class="recent-date">{{ post.created_at|date:"d/m/Y" }}</span>
+                <h3><a href="{% url 'post_detail' post.slug %}">{{ post.title }}</a></h3>
+                <p>{{ post.summary }}</p>
+            </article>
+        {% empty %}
+            <article class="recent-item">
+                <h3>Nenhum post publicado ainda</h3>
+                <p>Assim que um autor publicar, ele aparecera aqui.</p>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
