@@ -1,0 +1,44 @@
+name: Bug report
+description: Reportar um problema no sistema
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por abrir um bug. Preencha os dados abaixo para facilitar a reprodução.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Resumo
+      description: O que está acontecendo?
+      placeholder: Exemplo: erro 500 ao publicar post
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos para reproduzir
+      description: Informe o fluxo completo
+      placeholder: |
+        1. Fazer login como autor
+        2. Acessar /admin/posts/novo
+        3. Clicar em Publicar
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamento esperado
+      placeholder: O sistema deveria publicar e redirecionar para a listagem
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Ambiente
+      description: Sistema operacional, versão do Python e banco
+      placeholder: Windows 11, Python 3.13, PostgreSQL 16

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discussões do projeto
+    url: https://github.com/brenofcunha/Blog_de_Leitura/discussions
+    about: Use as discussões para dúvidas e ideias gerais.

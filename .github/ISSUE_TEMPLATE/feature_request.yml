@@ -1,0 +1,36 @@
+name: Feature request
+description: Solicitar nova funcionalidade
+labels: [feature]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Título da funcionalidade
+      placeholder: Exemplo: adicionar histórico de versões de post
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema que essa feature resolve
+      placeholder: Exemplo: não há rastreabilidade das alterações em posts
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposta de solução
+      placeholder: Exemplo: salvar snapshots por edição e exibir timeline
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Critérios de aceite
+      placeholder: |
+        - Criar versão ao editar post publicado
+        - Exibir histórico por data
+        - Permitir restaurar versão
