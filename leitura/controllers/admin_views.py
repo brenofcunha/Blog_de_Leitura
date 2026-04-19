@@ -39,7 +39,7 @@ def admin_post_list(request):
 @login_required
 def admin_post_create(request):
     if request.method == "POST":
-        form = PostForm(request.POST)
+        form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
@@ -68,7 +68,7 @@ def admin_post_edit(request, post_id):
         raise PermissionDenied("Voce nao pode editar este post.")
 
     if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
+        form = PostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             edited_post = form.save(commit=False)
             action = request.POST.get("action")

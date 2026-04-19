@@ -18,6 +18,15 @@
                 <a href="{% url 'admin_dashboard' %}">Painel</a>
             {% endif %}
         </nav>
+        <form method="get" action="{% url 'post_list' %}" class="header-search" aria-label="Busca de posts">
+            <input
+                type="search"
+                name="q"
+                value="{{ query|default:'' }}"
+                placeholder="Buscar por titulo ou conteudo"
+            >
+            <button type="submit">Buscar</button>
+        </form>
         <div class="header-auth">
             {% if user.is_authenticated %}
                 <span>Olá, {{ user.username }}</span>

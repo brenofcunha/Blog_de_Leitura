@@ -5,21 +5,66 @@
 {% block content %}
 <section class="hero" aria-label="Abertura">
     <p class="eyebrow">Area Publica</p>
-    <h1>Portal de leitura com posts publicados</h1>
-    <p class="lead">Acompanhe os conteudos publicados pelos autores.</p>
+    <h1>Portal de leitura com conteudo editorial dinamico</h1>
+    <p class="lead">Explore os posts publicados no portal, com destaques visuais e leitura organizada por data de publicacao.</p>
+    <p class="meta" style="margin-top: 10px;">{{ published_total }} post{{ published_total|pluralize }} publicado{{ published_total|pluralize:"s" }}</p>
     <a class="button" href="{% url 'post_list' %}">Ver todos os posts</a>
 </section>
 
 <section class="section">
     <div class="section-head">
-        <h2>Posts recentes</h2>
+        <h2>Categorias</h2>
+        <p>Filtre por assunto e encontre leituras mais rapido.</p>
+    </div>
+    <div class="chip-row">
+        <a class="chip" href="{% url 'post_list' %}">Todas</a>
+        {% for category in categories %}
+            <a class="chip" href="{% url 'post_list' %}?categoria={{ category.slug }}">{{ category.name }}</a>
+        {% empty %}
+            <span class="chip">Sem categorias cadastradas</span>
+        {% endfor %}
+    </div>
+</section>
+
+{% if featured_post %}
+<section class="section">
+    <div class="section-head">
+        <h2>Destaque da semana</h2>
+        <p>Um post recomendado para comecar a leitura.</p>
+    </div>
+    <article class="featured-post-card">
+        {% if featured_post.cover_image %}
+            <img class="cover-image" src="{{ featured_post.cover_image.url }}" alt="Capa de {{ featured_post.title }}">
+        {% endif %}
+        <div class="featured-post-head">
+            <span class="tag-highlight">Em destaque</span>
+            <span>{{ featured_post.published_at|default:featured_post.created_at|date:"d/m/Y" }}</span>
+        </div>
+        <h2>{{ featured_post.title }}</h2>
+        {% if featured_post.summary %}
+            <p>{{ featured_post.summary }}</p>
+        {% endif %}
+        <p class="meta">Por {{ featured_post.author.username }}</p>
+        <div class="featured-actions">
+            <a class="button" href="{% url 'post_detail' featured_post.slug %}">Ler post completo</a>
+        </div>
+    </article>
+</section>
+{% endif %}
+
+<section class="section">
+    <div class="section-head">
+        <h2>Publicacoes recentes</h2>
+        <p>Ultimas entradas publicadas no portal.</p>
     </div>
     <div class="recent-list">
         {% for post in recent_posts %}
             <article class="recent-item">
-                <span class="recent-date">{{ post.created_at|date:"d/m/Y" }}</span>
+                <span class="recent-date">{{ post.published_at|default:post.created_at|date:"d/m/Y" }} por {{ post.author.username }}</span>
                 <h3><a href="{% url 'post_detail' post.slug %}">{{ post.title }}</a></h3>
-                <p>{{ post.summary }}</p>
+                {% if post.summary %}
+                    <p>{{ post.summary }}</p>
+                {% endif %}
             </article>
         {% empty %}
             <article class="recent-item">
@@ -29,4 +74,31 @@
         {% endfor %}
     </div>
 </section>
+
+{% if highlighted_posts %}
+<section class="section">
+    <div class="section-head">
+        <h2>Trilha de leitura rapida</h2>
+        <p>Tres posts para maratonar conteudo.</p>
+    </div>
+    <div class="category-grid">
+        {% for post in highlighted_posts %}
+            <article class="category-card">
+                {% if post.cover_image %}
+                    <img class="cover-image" src="{{ post.cover_image.url }}" alt="Capa de {{ post.title }}">
+                {% else %}
+                    <div class="category-banner" aria-hidden="true">
+                        <div class="category-icon">{{ forloop.counter }}</div>
+                    </div>
+                {% endif %}
+                <h3>{{ post.title }}</h3>
+                {% if post.summary %}
+                    <p>{{ post.summary|truncatechars:120 }}</p>
+                {% endif %}
+                <a class="button category-button" href="{% url 'post_detail' post.slug %}">Abrir leitura</a>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 {% endblock %}
