@@ -8,9 +8,10 @@
         <h1>{{ page_title }}</h1>
     </div>
 
-    <form method="post" class="login-form">
+    <form method="post" enctype="multipart/form-data" class="login-form">
         {% csrf_token %}
         {{ form.as_p }}
+        <p class="meta" style="margin-bottom: 12px;">Editor em Markdown: use # para titulos, * para listas, [texto](url) para links e ![alt](url) para imagens.</p>
         <button class="button" type="submit" name="action" value="save_draft">Salvar rascunho</button>
         <button class="button" type="submit" name="action" value="publish">Publicar</button>
         <button class="button" type="submit" name="action" value="save">{{ submit_label }}</button>

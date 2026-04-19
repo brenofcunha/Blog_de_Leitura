@@ -45,6 +45,18 @@ Se `USE_POSTGRES` nao estiver igual a `1`, o projeto usa SQLite como fallback lo
 - Campo `published_at` para registrar publicacao.
 - Testes dos fluxos essenciais da interface de posts.
 
+## Etapa 5 implementada
+
+- Busca publica por titulo, resumo e conteudo em `/posts/`.
+- Filtros por categoria e tag.
+- Categorias e tags relacionadas aos posts.
+- Upload de imagem de capa no painel administrativo.
+- Editor de conteudo com suporte a Markdown basico.
+- Paginação na listagem publica de posts.
+- Navegacao entre post anterior/proximo e sugestoes de leitura.
+- Otimizacao de consultas com `select_related`, `prefetch_related` e indices no modelo `Post`.
+- Ajustes responsivos e melhorias visuais de leitura.
+
 ## Rotas
 
 ### Publicas
