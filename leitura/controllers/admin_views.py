@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from leitura.forms import PostForm
 from leitura.models import Post
 from leitura.repositories.post_repository import PostRepository
-from leitura.services.post_service import all_posts_for_user, can_manage_everything
+from leitura.services.post_service import all_posts_for_user, can_manage_post
 
 
 @login_required
@@ -64,7 +64,7 @@ def admin_post_create(request):
 @login_required
 def admin_post_edit(request, post_id):
     post = get_object_or_404(Post.objects.select_related("author"), pk=post_id)
-    if not (can_manage_everything(request.user) or post.author_id == request.user.id):
+    if not can_manage_post(request.user, post):
         raise PermissionDenied("Voce nao pode editar este post.")
 
     if request.method == "POST":
@@ -95,7 +95,7 @@ def admin_post_delete(request, post_id):
         return redirect("admin_posts")
 
     post = get_object_or_404(Post.objects.select_related("author"), pk=post_id)
-    if not (can_manage_everything(request.user) or post.author_id == request.user.id):
+    if not can_manage_post(request.user, post):
         raise PermissionDenied("Voce nao pode excluir este post.")
 
     PostRepository.delete(post)
