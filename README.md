@@ -1,18 +1,61 @@
-# Blog_de_Leitura
+# Blog de Leitura
 
-Portal de posts em Django com separacao entre area publica e area administrativa.
+Portal de posts com Django, foco editorial e experiência completa para leitura e gestão de conteúdo.
 
-## Como rodar localmente
+## Objetivo do sistema
+
+Oferecer uma plataforma com:
+- área pública para leitura de posts publicados
+- área administrativa para criação e edição de conteúdo
+- controle de permissões entre autores e administradores
+- base técnica para evolução contínua com qualidade e CI/CD
+
+## Funcionalidades principais
+
+- autenticação com login/logout
+- CRUD de posts no painel administrativo
+- status de post: rascunho e publicado
+- busca pública por título/resumo/conteúdo
+- filtros por categoria e tag
+- paginação na listagem pública
+- navegação entre posts e sugestões de leitura
+- upload de imagem de capa
+- testes automatizados e pipeline de CI
+
+## Tecnologias utilizadas
+
+- Python 3.13
+- Django 5
+- PostgreSQL (alvo principal)
+- SQLite (fallback para desenvolvimento)
+- Pytest, pytest-django, pytest-cov
+- Black, isort, flake8
+- GitHub Actions
+
+## Instalação
+
+### 1. Clonar repositório
 
 ```bash
-python -m pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
+git clone https://github.com/brenofcunha/Blog_de_Leitura.git
+cd Blog_de_Leitura
 ```
 
-### Usando PostgreSQL
+### 2. Configurar ambiente
 
-Defina as variaveis de ambiente antes de subir o servidor:
+```bash
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+# Linux/macOS
+source .venv/bin/activate
+```
+
+### 3. Configurar variáveis
+
+Copie `.env.example` para `.env` e ajuste valores.
+
+Exemplo mínimo para PostgreSQL:
 
 ```bash
 USE_POSTGRES=1
@@ -23,75 +66,58 @@ POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 ```
 
-Se `USE_POSTGRES` nao estiver igual a `1`, o projeto usa SQLite como fallback local.
+Se `USE_POSTGRES` for diferente de `1`, o projeto usa SQLite local.
 
-## Etapa 1 implementada
+### 4. Instalar dependências e subir banco
 
-- Area publica para leitura de posts publicados.
-- Area administrativa para criar e editar posts.
-- Autenticacao com login/logout.
-- Controle de acesso por autor e admin.
-- Separacao entre posts em rascunho e publicados.
-- Limite de ate 5 usuarios ativos no portal.
+```bash
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py check
+```
 
-## Etapa 2 implementada
+## Execução
 
-- Integracao com PostgreSQL por variaveis de ambiente.
-- Camada de acesso a dados centralizada em `leitura/repositories`.
-- CRUD de posts no painel administrativo.
-- Filtros de listagem por status e titulo.
-- Acao de salvar rascunho e publicar no formulario.
-- Controle de permissao no backend (autor/admin).
-- Campo `published_at` para registrar publicacao.
-- Testes dos fluxos essenciais da interface de posts.
+```bash
+python manage.py runserver
+```
 
-## Etapa 5 implementada
+Aplicação:
+- público: `http://127.0.0.1:8000/`
+- admin django: `http://127.0.0.1:8000/django-admin/`
 
-- Busca publica por titulo, resumo e conteudo em `/posts/`.
-- Filtros por categoria e tag.
-- Categorias e tags relacionadas aos posts.
-- Upload de imagem de capa no painel administrativo.
-- Editor de conteudo com suporte a Markdown basico.
-- Paginação na listagem publica de posts.
-- Navegacao entre post anterior/proximo e sugestoes de leitura.
-- Otimizacao de consultas com `select_related`, `prefetch_related` e indices no modelo `Post`.
-- Ajustes responsivos e melhorias visuais de leitura.
-
-## Etapa 7 implementada
-
-- Testes automatizados ampliados para model, view e permissao.
-- Cobertura de testes configurada com meta minima de 70% via `pytest-cov`.
-- Padronizacao com `black`, `isort` e `flake8`.
-- Pipeline de CI no GitHub Actions para lint, format check, import order, migration check e testes.
-- Checklist de testes manuais criticos em `docs/manual-tests.md`.
-
-### Qualidade local (dev)
-
-Instale dependencias de desenvolvimento:
+## Qualidade e testes
 
 ```bash
 python -m pip install -r requirements-dev.txt
-```
-
-Execute validacoes:
-
-```bash
+python manage.py test
 black --check .
 isort --check-only .
 flake8 .
 pytest
 ```
 
-## Rotas
+## Estrutura do projeto
 
-### Publicas
+```text
+config/
+leitura/
+  controllers/
+  services/
+  repositories/
+  routes/
+  templates/
+  static/
+docs/
+.github/
+scripts/
+```
+
+## Rotas principais
 
 - `/`
-- `/posts`
-- `/posts/<slug>`
-
-### Administrativas
-
+- `/posts/`
+- `/posts/<slug>/`
 - `/login`
 - `/admin`
 - `/admin/posts`
@@ -99,25 +125,30 @@ pytest
 - `/admin/posts/<id>/editar`
 - `/admin/posts/<id>/excluir`
 
-### Admin do Django
+## Documentação técnica
 
-- `/django-admin/`
+- `docs/architecture.md`
+- `docs/data-flow.md`
+- `docs/database-model.md`
+- `docs/technical-decisions.md`
+- `docs/coding-standards.md`
+- `docs/github-setup.md`
+- `docs/manual-tests.md`
+- `docs/portfolio.md`
 
-## Estrutura aplicada
+## Roadmap (Etapas 1 a 10)
 
-```text
-leitura/
-	controllers/
-	services/
-	routes/
-	repositories/
-	templates/
-		views/
-			public/
-			admin/
-```
+- Etapa 1: organização da base e separação público/admin
+- Etapa 2: CRUD com persistência em banco
+- Etapa 3: portal público dinâmico
+- Etapa 4: evolução editorial e gestão
+- Etapa 5: UX avançada e descoberta de conteúdo
+- Etapa 6: segurança e robustez operacional
+- Etapa 7: qualidade de código, testes e CI/CD
+- Etapa 8: observabilidade e métricas de uso
+- Etapa 9: produto, documentação e experiência de projeto
+- Etapa 10: preparação final para portfólio e release
 
-## Modelo de dados
+## Contribuição
 
-- `Post`: titulo, slug, resumo, conteudo, status (rascunho/publicado), autor, created_at, updated_at, published_at.
-- `UserProfile`: papel (admin/autor) ligado ao usuario autenticado do Django.
+Leia `CONTRIBUTING.md` para fluxo de branches, PRs e critérios de aprovação.
