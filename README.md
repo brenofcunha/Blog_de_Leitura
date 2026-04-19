@@ -32,6 +32,27 @@ Oferecer uma plataforma com:
 - Black, isort, flake8
 - GitHub Actions
 
+## Settings por ambiente
+
+O projeto usa módulos separados de configuração:
+- `config.settings.base`
+- `config.settings.development`
+- `config.settings.production`
+
+Padrão local:
+- `manage.py` e `pytest` usam `config.settings.development`
+
+Deploy (WSGI/ASGI):
+- padrão em produção: `config.settings.production`
+
+Variável principal:
+
+```bash
+DJANGO_SETTINGS_MODULE=config.settings.development
+# ou
+DJANGO_SETTINGS_MODULE=config.settings.production
+```
+
 ## Instalação
 
 ### 1. Clonar repositório
@@ -68,6 +89,32 @@ POSTGRES_PORT=5432
 
 Se `USE_POSTGRES` for diferente de `1`, o projeto usa SQLite local.
 
+Para produção, as variáveis abaixo são obrigatórias:
+
+- `DJANGO_SETTINGS_MODULE=config.settings.production`
+- `DJANGO_SECRET_KEY`
+- `DJANGO_ALLOWED_HOSTS` (separado por vírgula)
+- `DJANGO_CSRF_TRUSTED_ORIGINS` (separado por vírgula e com `https://`)
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `POSTGRES_HOST`
+- `POSTGRES_PORT`
+
+Exemplo de produção:
+
+```bash
+DJANGO_SETTINGS_MODULE=config.settings.production
+DJANGO_SECRET_KEY=<segredo-forte>
+DJANGO_ALLOWED_HOSTS=seudominio.com,www.seudominio.com
+DJANGO_CSRF_TRUSTED_ORIGINS=https://seudominio.com,https://www.seudominio.com
+POSTGRES_DB=blog_leitura
+POSTGRES_USER=blog_user
+POSTGRES_PASSWORD=<senha-forte>
+POSTGRES_HOST=<host-postgres>
+POSTGRES_PORT=5432
+```
+
 ### 4. Instalar dependências e subir banco
 
 ```bash
@@ -79,6 +126,14 @@ python manage.py check
 ## Execução
 
 ```bash
+python manage.py runserver
+```
+
+Para forçar execução local com settings explícito:
+
+```bash
+# Windows PowerShell
+$env:DJANGO_SETTINGS_MODULE="config.settings.development"
 python manage.py runserver
 ```
 
