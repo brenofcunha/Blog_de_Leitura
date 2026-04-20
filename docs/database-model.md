@@ -1,25 +1,17 @@
 # Modelo de Banco de Dados
 
-## Entidades principais
-- User (Django auth)
-- UserProfile (papel admin/autor)
-- Post
-- Category
-- Tag
+Este documento foi mantido por compatibilidade historica.
 
-## Post
-Campos relevantes:
-- title, slug, summary, content
-- status (rascunho/publicado)
-- author (FK)
-- categories (M2M)
-- tags (M2M)
-- cover_image
-- created_at, updated_at, published_at
+Versao completa e atualizada:
 
-## Índices
-- status + published_at
-- author + status
-- slug único
+- docs/models.md
 
-Esses índices melhoram busca e listagens públicas.
+Resumo rapido:
+
+- entidades: User, UserProfile, Post, Category, Tag
+- post possui status rascunho/publicado
+- published_at segue regra de status no model
+- indices principais em Post:
+  - status + published_at
+  - author + status
+  - slug unico/indexado

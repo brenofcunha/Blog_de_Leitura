@@ -4,7 +4,7 @@ from .base import *  # noqa: F403
 
 # Local development defaults.
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-development-key-change-me")
-DEBUG = True
+DEBUG = get_bool_env("DEBUG", default=True)
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000", "http://localhost:8000"]
 

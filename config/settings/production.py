@@ -3,7 +3,7 @@ import os
 from django.core.exceptions import ImproperlyConfigured
 
 from .base import *  # noqa: F403
-from .base import get_list_env
+from .base import get_first_env, get_list_env_alias
 
 
 def get_required_env(name: str) -> str:
@@ -13,16 +13,32 @@ def get_required_env(name: str) -> str:
     return value
 
 
-DEBUG = False
-SECRET_KEY = get_required_env("DJANGO_SECRET_KEY")
+def get_required_env_alias(primary_name: str, secondary_name: str) -> str:
+    value = get_first_env(primary_name, secondary_name)
+    if not value:
+        raise ImproperlyConfigured(
+            f"Environment variable '{primary_name}' (or '{secondary_name}') is required in production."
+        )
+    return value
 
-ALLOWED_HOSTS = get_list_env("DJANGO_ALLOWED_HOSTS")
+
+DEBUG = get_bool_env("DEBUG", default=False)
+if DEBUG:
+    raise ImproperlyConfigured("DEBUG must be False in production.")
+
+SECRET_KEY = get_required_env_alias("DJANGO_SECRET_KEY", "SECRET_KEY")
+
+ALLOWED_HOSTS = get_list_env_alias("ALLOWED_HOSTS", "DJANGO_ALLOWED_HOSTS")
 if not ALLOWED_HOSTS:
-    raise ImproperlyConfigured("DJANGO_ALLOWED_HOSTS must be defined in production.")
+    raise ImproperlyConfigured("ALLOWED_HOSTS (or DJANGO_ALLOWED_HOSTS) must be defined in production.")
+if "*" in ALLOWED_HOSTS:
+    raise ImproperlyConfigured("Wildcard '*' is not allowed in ALLOWED_HOSTS for production.")
 
-CSRF_TRUSTED_ORIGINS = get_list_env("DJANGO_CSRF_TRUSTED_ORIGINS")
+CSRF_TRUSTED_ORIGINS = get_list_env_alias("CSRF_TRUSTED_ORIGINS", "DJANGO_CSRF_TRUSTED_ORIGINS")
 if not CSRF_TRUSTED_ORIGINS:
-    raise ImproperlyConfigured("DJANGO_CSRF_TRUSTED_ORIGINS must be defined in production.")
+    raise ImproperlyConfigured(
+        "CSRF_TRUSTED_ORIGINS (or DJANGO_CSRF_TRUSTED_ORIGINS) must be defined in production."
+    )
 
 invalid_origins = [origin for origin in CSRF_TRUSTED_ORIGINS if not origin.startswith("https://")]
 if invalid_origins:
