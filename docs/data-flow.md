@@ -1,18 +1,15 @@
 # Fluxo de Dados
 
-## Fluxo de post
-1. Autor autenticado cria/edita post no admin.
-2. Formulário valida dados obrigatórios.
-3. Service/repository persistem no banco.
-4. Se status = publicado, post entra no portal público.
-5. Área pública consulta apenas posts publicados.
+Este documento foi mantido por compatibilidade historica.
 
-## Fluxo de usuário
-1. Usuário faz login em `/login`.
-2. Após autenticação, redireciona para painel.
-3. Permissões determinam escopo de gerenciamento.
+Versao completa e atualizada:
 
-## Fluxo de leitura
-1. Visitante acessa `/` ou `/posts/`.
-2. Pode usar busca/filtros por categoria/tag.
-3. Abre detalhe por slug em `/posts/<slug>/`.
+- docs/flows.md
+
+Resumo rapido:
+
+1. usuario autenticado cria ou edita post no painel
+2. formulario valida campos e arquivo de capa
+3. status define visibilidade (rascunho ou publicado)
+4. area publica consulta somente posts publicados
+5. autorizacao de edicao/exclusao e aplicada no backend

@@ -1,261 +1,267 @@
 # Blog de Leitura
 
-Portal de posts com Django, foco editorial e experiência completa para leitura e gestão de conteúdo.
+Portal de posts multiusuario construido com Django, com area publica para leitura e area administrativa para autores e administradores.
 
 ## Objetivo do sistema
 
-Oferecer uma plataforma com:
-- área pública para leitura de posts publicados
-- área administrativa para criação e edição de conteúdo
-- controle de permissões entre autores e administradores
-- base técnica para evolução contínua com qualidade e CI/CD
+O Blog de Leitura existe para permitir que multiplos autores publiquem conteudo de forma organizada, com regras claras de permissao e um fluxo editorial simples:
+
+- criar conteudo
+- salvar como rascunho
+- publicar quando estiver pronto
+- editar e excluir com seguranca
 
 ## Funcionalidades principais
 
-- autenticação com login/logout
-- CRUD de posts no painel administrativo
-- status de post: rascunho e publicado
-- busca pública por título/resumo/conteúdo
+- autenticacao com login/logout
+- painel administrativo para autores e admins
+- CRUD de posts com status rascunho/publicado
+- busca publica por titulo, resumo e conteudo
 - filtros por categoria e tag
-- paginação na listagem pública
-- navegação entre posts e sugestões de leitura
+- paginacao da lista publica
+- navegacao entre posts e sugestoes de leitura
 - upload de imagem de capa
-- testes automatizados e pipeline de CI
+- testes automatizados com Django TestCase e Pytest
 
-## Tecnologias utilizadas
+## Stack tecnologica
 
 - Python 3.13
-- Django 5
-- PostgreSQL (alvo principal)
+- Django 5.2
+- PostgreSQL (producao e alvo principal)
 - SQLite (fallback para desenvolvimento)
-- Pytest, pytest-django, pytest-cov
-- Black, isort, flake8
-- GitHub Actions
-- Vercel (deploy serverless)
-- django-storages + Amazon S3 (uploads em produção)
+- django-storages + boto3 (uploads em S3 na producao)
+- pytest, pytest-django, pytest-cov
+- black, isort, flake8
+- Vercel para deploy
 
-## Settings por ambiente
+## Arquitetura em alto nivel
 
-O projeto usa módulos separados de configuração:
-- `config.settings.base`
-- `config.settings.development`
-- `config.settings.production`
+O projeto usa separacao por camadas para manter responsabilidades claras:
 
-Padrão local:
-- `manage.py` e `pytest` usam `config.settings.development`
+- routes: definicao de rotas HTTP
+- controllers: entrada de requests e retorno de responses
+- services: regras de negocio e autorizacao
+- repositories: consultas e persistencia
+- models: entidades e relacoes de banco
 
-Deploy (WSGI/ASGI):
-- padrão em produção: `config.settings.production`
+Fluxo padrao de requisicao:
 
-Variável principal:
+request -> route -> controller -> service -> repository/model -> response
 
-```bash
-DJANGO_SETTINGS_MODULE=config.settings.development
-# ou
-DJANGO_SETTINGS_MODULE=config.settings.production
-```
+Documentacao detalhada:
 
-## Instalação
+- docs/architecture.md
+- docs/models.md
+- docs/flows.md
+- docs/permissions.md
+- docs/deployment.md
 
-### 1. Clonar repositório
+## Como rodar localmente
 
-```bash
-git clone https://github.com/brenofcunha/Blog_de_Leitura.git
+### 1. Clonar o repositorio
+
+Comando:
+
+git clone [https://github.com/brenofcunha/Blog_de_Leitura.git](https://github.com/brenofcunha/Blog_de_Leitura.git)
+
+Entrar na pasta:
+
 cd Blog_de_Leitura
-```
 
-### 2. Configurar ambiente
+### 2. Criar e ativar ambiente virtual
 
-```bash
+Windows (cmd/PowerShell):
+
 python -m venv .venv
-# Windows
 .venv\Scripts\activate
-# Linux/macOS
+
+Linux/macOS:
+
+python -m venv .venv
 source .venv/bin/activate
-```
 
-### 3. Configurar variáveis
+### 3. Instalar dependencias
 
-Copie `.env.example` para `.env` e ajuste valores.
+python -m pip install -r requirements.txt
 
-Exemplo mínimo para PostgreSQL:
+### 4. Configurar variaveis de ambiente
 
-```bash
+Use o arquivo .env.example como base e crie o seu .env.
+
+Ambiente local com SQLite (mais simples):
+
+DJANGO_SETTINGS_MODULE=config.settings.development
+USE_POSTGRES=0
+
+Ambiente local com PostgreSQL:
+
+DJANGO_SETTINGS_MODULE=config.settings.development
 USE_POSTGRES=1
 POSTGRES_DB=blog_leitura
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
-```
 
-Se `USE_POSTGRES` for diferente de `1`, o projeto usa SQLite local.
+### 5. Aplicar migracoes
 
-Para produção, as variáveis abaixo são obrigatórias:
+python manage.py migrate
 
-- `DJANGO_SETTINGS_MODULE=config.settings.production`
-- `DJANGO_SECRET_KEY`
-- `DJANGO_ALLOWED_HOSTS` (separado por vírgula)
-- `DJANGO_CSRF_TRUSTED_ORIGINS` (separado por vírgula e com `https://`)
-- `POSTGRES_DB`
-- `POSTGRES_USER`
-- `POSTGRES_PASSWORD`
-- `POSTGRES_HOST`
-- `POSTGRES_PORT`
-- `AWS_STORAGE_BUCKET_NAME`
-- `AWS_S3_REGION_NAME`
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
+### 6. Validar projeto
 
-Exemplo de produção:
+python manage.py check
 
-```bash
+### 7. Executar servidor
+
+python manage.py runserver
+
+URLs principais:
+
+- publico: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- admin Django nativo: [http://127.0.0.1:8000/django-admin/](http://127.0.0.1:8000/django-admin/)
+- painel administrativo da aplicacao: [http://127.0.0.1:8000/admin](http://127.0.0.1:8000/admin)
+
+## Rotas do sistema
+
+### Publicas
+
+- /
+- /posts/
+- /posts/{slug}/
+
+Exemplo de filtros:
+
+- /posts/?q=django
+- /posts/?categoria=backend
+- /posts/?tag=python
+
+### Administrativas
+
+- /admin
+- /admin/posts
+- /admin/posts/novo
+- /admin/posts/{id}/editar
+- /admin/posts/{id}/excluir
+
+### Autenticacao
+
+- /login
+- /logout
+
+## Regras de permissao (resumo)
+
+- Admin (is_staff/is_superuser) pode gerenciar qualquer post
+- Autor gerencia apenas os proprios posts
+- Usuario nao autenticado nao acessa area administrativa
+
+Detalhes completos em docs/permissions.md.
+
+## Qualidade, testes e manutencao segura
+
+Instalar ferramentas de desenvolvimento:
+
+python -m pip install -r requirements-dev.txt
+
+Validacoes recomendadas antes de abrir PR:
+
+- python manage.py check
+- python manage.py test
+- pytest
+- black --check .
+- isort --check-only .
+- flake8 .
+
+## Deploy e operacao
+
+Resumo:
+
+- producao usa config.settings.production
+- banco principal: PostgreSQL
+- arquivos estaticos: collectstatic para staticfiles/
+- uploads de midia: S3 via django-storages
+
+Guia completo em docs/deployment.md.
+
+## Seguranca pre-producao (obrigatorio)
+
+Antes de publicar em ambiente aberto, configure obrigatoriamente:
+
+- DEBUG=0 em producao
+- SECRET_KEY (ou DJANGO_SECRET_KEY) sem fallback no codigo
+- ALLOWED_HOSTS (ou DJANGO_ALLOWED_HOSTS) com dominios explicitos
+- CSRF_TRUSTED_ORIGINS (ou DJANGO_CSRF_TRUSTED_ORIGINS) com https://
+
+Configuracoes de seguranca ativas em producao:
+
+- SESSION_COOKIE_SECURE=True
+- CSRF_COOKIE_SECURE=True
+- SECURE_SSL_REDIRECT=True (por padrao)
+- SECURE_HSTS_SECONDS configurado
+- SECURE_HSTS_INCLUDE_SUBDOMAINS=True
+- SECURE_HSTS_PRELOAD=True
+- SECURE_CONTENT_TYPE_NOSNIFF=True
+- X_FRAME_OPTIONS=DENY
+
+Regras importantes:
+
+- a aplicacao falha se SECRET_KEY nao estiver definida
+- a aplicacao falha se ALLOWED_HOSTS estiver vazio ou com "*"
+- a aplicacao falha se CSRF_TRUSTED_ORIGINS nao estiver definido corretamente
+- em producao, DEBUG=True e bloqueado na inicializacao
+
+Exemplo minimo de variaveis para producao:
+
+```env
 DJANGO_SETTINGS_MODULE=config.settings.production
-DJANGO_SECRET_KEY=<segredo-forte>
-DJANGO_ALLOWED_HOSTS=seudominio.com,www.seudominio.com
-DJANGO_CSRF_TRUSTED_ORIGINS=https://seudominio.com,https://www.seudominio.com
+DEBUG=0
+SECRET_KEY=troque-por-uma-chave-forte
+ALLOWED_HOSTS=seudominio.com,www.seudominio.com
+CSRF_TRUSTED_ORIGINS=https://seudominio.com,https://www.seudominio.com
 POSTGRES_DB=blog_leitura
 POSTGRES_USER=blog_user
-POSTGRES_PASSWORD=<senha-forte>
-POSTGRES_HOST=<host-postgres>
+POSTGRES_PASSWORD=senha-forte
+POSTGRES_HOST=host-do-banco
 POSTGRES_PORT=5432
-AWS_STORAGE_BUCKET_NAME=<bucket>
-AWS_S3_REGION_NAME=us-east-1
-AWS_ACCESS_KEY_ID=<access-key>
-AWS_SECRET_ACCESS_KEY=<secret-key>
-# opcional
-AWS_S3_CUSTOM_DOMAIN=cdn.seudominio.com
 ```
 
-### 4. Instalar dependências e subir banco
+Checklist rapido de validacao:
 
-```bash
-python -m pip install -r requirements.txt
-python manage.py migrate
-python manage.py check
-```
+1. sistema sobe com DEBUG=0
+2. sistema falha sem SECRET_KEY
+3. host fora de ALLOWED_HOSTS nao e aceito
+4. formularios funcionam com CSRF_TRUSTED_ORIGINS correto
+5. cookies possuem flag Secure
+6. HTTP e redirecionado para HTTPS
+7. erros nao exibem stack trace para usuario final
 
-## Execução
+## Estrutura resumida do projeto
 
-```bash
-python manage.py runserver
-```
-
-Para forçar execução local com settings explícito:
-
-```bash
-# Windows PowerShell
-$env:DJANGO_SETTINGS_MODULE="config.settings.development"
-python manage.py runserver
-```
-
-Aplicação:
-- público: `http://127.0.0.1:8000/`
-- admin django: `http://127.0.0.1:8000/django-admin/`
-
-## Deploy Vercel (Static + Media)
-
-### Arquivos estáticos
-
-- `STATIC_ROOT` foi definido para `staticfiles/`.
-- O build do Vercel executa automaticamente:
-
-```bash
-python manage.py collectstatic --noinput
-```
-
-- O roteamento está configurado em `vercel.json` para servir `/static/*` a partir de `staticfiles/*`.
-
-### Uploads em produção
-
-- Em desenvolvimento, uploads continuam locais (`MEDIA_ROOT`).
-- Em produção, uploads usam storage externo S3 via `django-storages`.
-- O Django não depende de disco local no Vercel para mídia em produção.
-
-### Variáveis no painel da Vercel
-
-Configure no projeto Vercel:
-
-- `DJANGO_SETTINGS_MODULE=config.settings.production`
-- `DJANGO_SECRET_KEY`
-- `DJANGO_ALLOWED_HOSTS`
-- `DJANGO_CSRF_TRUSTED_ORIGINS`
-- `POSTGRES_DB`
-- `POSTGRES_USER`
-- `POSTGRES_PASSWORD`
-- `POSTGRES_HOST`
-- `POSTGRES_PORT`
-- `AWS_STORAGE_BUCKET_NAME`
-- `AWS_S3_REGION_NAME`
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
-- `AWS_S3_CUSTOM_DOMAIN` (opcional)
-
-Nunca versione credenciais reais no repositório.
-
-## Qualidade e testes
-
-```bash
-python -m pip install -r requirements-dev.txt
-python manage.py test
-black --check .
-isort --check-only .
-flake8 .
-pytest
-```
-
-## Estrutura do projeto
-
-```text
 config/
 leitura/
   controllers/
   services/
   repositories/
   routes/
+  models.py
+  forms.py
   templates/
   static/
 docs/
-.github/
 scripts/
-```
 
-## Rotas principais
+## Roadmap
 
-- `/`
-- `/posts/`
-- `/posts/<slug>/`
-- `/login`
-- `/admin`
-- `/admin/posts`
-- `/admin/posts/novo`
-- `/admin/posts/<id>/editar`
-- `/admin/posts/<id>/excluir`
+- curto prazo: melhorar observabilidade, cobertura de testes e diagnostico de falhas
+- medio prazo: evoluir UX editorial e automacao de revisao de conteudo
+- longo prazo: ampliar funcionalidades de colaboracao e analytics para autores
 
-## Documentação técnica
+## Onboarding rapido para novos devs
 
-- `docs/architecture.md`
-- `docs/data-flow.md`
-- `docs/database-model.md`
-- `docs/technical-decisions.md`
-- `docs/coding-standards.md`
-- `docs/github-setup.md`
-- `docs/manual-tests.md`
-- `docs/portfolio.md`
+1. Rodar o passo a passo de instalacao acima
+2. Ler docs/architecture.md para entender o desenho tecnico
+3. Ler docs/flows.md e docs/permissions.md antes de alterar regra de negocio
+4. Validar alteracoes com testes e lint
 
-## Roadmap (Etapas 1 a 10)
+## Contribuicao
 
-- Etapa 1: organização da base e separação público/admin
-- Etapa 2: CRUD com persistência em banco
-- Etapa 3: portal público dinâmico
-- Etapa 4: evolução editorial e gestão
-- Etapa 5: UX avançada e descoberta de conteúdo
-- Etapa 6: segurança e robustez operacional
-- Etapa 7: qualidade de código, testes e CI/CD
-- Etapa 8: observabilidade e métricas de uso
-- Etapa 9: produto, documentação e experiência de projeto
-- Etapa 10: preparação final para portfólio e release
-
-## Contribuição
-
-Leia `CONTRIBUTING.md` para fluxo de branches, PRs e critérios de aprovação.
+Leia CONTRIBUTING.md para fluxo de branches, convencoes de commit e criterios de revisao.
