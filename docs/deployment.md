@@ -48,6 +48,19 @@ DJANGO_SETTINGS_MODULE=config.settings.production
 - desenvolvimento: SQLite por padrao (ou PostgreSQL com USE_POSTGRES=1)
 - producao: PostgreSQL obrigatorio
 
+## Etapa 2: provisionamento no Railway
+
+Para criar e validar o banco PostgreSQL no Railway, siga:
+
+- docs/railway-postgres.md
+
+Resumo da etapa:
+
+1. criar servico PostgreSQL no Railway
+2. capturar variaveis (DATABASE_URL ou PGHOST/PGUSER/...)
+3. mapear para variaveis usadas pelo projeto
+4. validar acesso externo ao banco
+
 Passos de preparacao:
 
 1. criar banco e usuario no PostgreSQL

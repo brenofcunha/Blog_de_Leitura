@@ -55,6 +55,7 @@ Documentacao detalhada:
 - docs/flows.md
 - docs/permissions.md
 - docs/deployment.md
+- docs/railway-postgres.md
 
 ## Como rodar localmente
 
@@ -181,6 +182,40 @@ Resumo:
 - uploads de midia: S3 via django-storages
 
 Guia completo em docs/deployment.md.
+
+## Separacao de ambientes (Django)
+
+O projeto usa settings por pacote em config/settings:
+
+- config.settings.base
+- config.settings.development
+- config.settings.production
+
+Troca de ambiente e feita por variavel de ambiente:
+
+- desenvolvimento: DJANGO_SETTINGS_MODULE=config.settings.development
+- producao: DJANGO_SETTINGS_MODULE=config.settings.production
+
+Regras de comportamento:
+
+- desenvolvimento: DEBUG habilitavel por env (default local ligado)
+- producao: DEBUG obrigatoriamente desabilitado
+- producao: sem fallback inseguro para SECRET_KEY
+- producao: falha ao iniciar sem variaveis criticas
+
+Exemplo de uso local no PowerShell:
+
+```powershell
+$env:DJANGO_SETTINGS_MODULE="config.settings.development"
+python manage.py runserver
+```
+
+Exemplo de validacao de producao (sem iniciar servidor web):
+
+```powershell
+$env:DJANGO_SETTINGS_MODULE="config.settings.production"
+python manage.py check
+```
 
 ## Seguranca pre-producao (obrigatorio)
 
