@@ -1,113 +1,180 @@
-# Deploy e Operacao em Producao
+# Deploy em Producao (HostGator)
 
 ## Objetivo
 
-Padronizar o deploy do projeto com seguranca e previsibilidade.
+Este guia cobre deploy em HostGator para:
 
-## Ambientes de configuracao
+- hospedagem compartilhada com cPanel + Python App (Passenger)
+- VPS Linux
 
-O projeto possui tres modulos de settings:
+As configuracoes abaixo mantem seguranca de producao, suportam MySQL/PostgreSQL por variavel de ambiente e deixam S3 opcional para uploads.
 
-- config.settings.base
-- config.settings.development
-- config.settings.production
+## Diagnostico do projeto e ajustes aplicados
 
-Em producao, usar obrigatoriamente:
+Estado inicial identificado:
 
-DJANGO_SETTINGS_MODULE=config.settings.production
+- `config.settings.production` exigia PostgreSQL obrigatoriamente
+- `config.settings.production` exigia S3 obrigatoriamente
+- nao havia entrada `passenger_wsgi.py` para cPanel/Passenger
+- documentacao de deploy estava focada em Vercel
 
-## Variaveis de ambiente essenciais
+Ajustes implementados:
+
+- selecao de banco por variavel (`DATABASE_ENGINE`)
+- suporte a MySQL para producao (com `PyMySQL`)
+- S3 opcional: sem variaveis AWS completas, usa media local com FileSystemStorage
+- novo `passenger_wsgi.py` para HostGator compartilhada
+- reforco de seguranca de producao (hosts, CSRF https, cookies seguros, HSTS)
+- refatoracao de settings para modulos reutilizaveis:
+  - `config/settings/components/env.py`
+  - `config/settings/components/database.py`
+  - `config/settings/components/storage.py`
+
+## Variaveis de ambiente obrigatorias (producao)
 
 ### Aplicacao e seguranca
 
-- DJANGO_SECRET_KEY
-- DJANGO_ALLOWED_HOSTS (separado por virgula)
-- DJANGO_CSRF_TRUSTED_ORIGINS (com https://)
-- DJANGO_SECURE_SSL_REDIRECT
-- DJANGO_USE_X_FORWARDED_PROTO
-- DJANGO_SECURE_HSTS_SECONDS
+- `DJANGO_SETTINGS_MODULE=config.settings.production`
+- `DEBUG=0`
+- `DJANGO_SECRET_KEY=<segredo-forte>`
+- `ALLOWED_HOSTS=SEU-DOMINIO.com,www.SEU-DOMINIO.com`
+- `CSRF_TRUSTED_ORIGINS=https://SEU-DOMINIO.com,https://www.SEU-DOMINIO.com`
 
-### Banco PostgreSQL
+### Banco de dados (escolha um engine)
 
-- POSTGRES_DB
-- POSTGRES_USER
-- POSTGRES_PASSWORD
-- POSTGRES_HOST
-- POSTGRES_PORT
+- `DATABASE_ENGINE=mysql` (recomendado em HostGator compartilhada)
+- ou `DATABASE_ENGINE=postgresql`
 
-### Storage de uploads (S3)
+Para MySQL:
 
-- AWS_STORAGE_BUCKET_NAME
-- AWS_S3_REGION_NAME
-- AWS_ACCESS_KEY_ID
-- AWS_SECRET_ACCESS_KEY
-- AWS_S3_CUSTOM_DOMAIN (opcional)
+- `MYSQL_DATABASE`
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
+- `MYSQL_HOST`
+- `MYSQL_PORT` (normalmente `3306`)
 
-## Estrategia de banco de dados
+Para PostgreSQL:
 
-- desenvolvimento: SQLite por padrao (ou PostgreSQL com USE_POSTGRES=1)
-- producao: PostgreSQL obrigatorio
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `POSTGRES_HOST`
+- `POSTGRES_PORT` (normalmente `5432`)
 
-Passos de preparacao:
+### Uploads (S3 opcional)
 
-1. criar banco e usuario no PostgreSQL
-2. configurar variaveis de ambiente
-3. aplicar migracoes:
+Se todas variaveis AWS estiverem presentes, uploads vao para S3:
 
+- `AWS_STORAGE_BUCKET_NAME`
+- `AWS_S3_REGION_NAME`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_S3_CUSTOM_DOMAIN` (opcional)
+- `AWS_MEDIA_LOCATION` (opcional, padrao `media`)
+
+Se nao definir AWS (ou remover todas), uploads ficam em `MEDIA_ROOT` local.
+
+## Static e media em producao
+
+- estaticos: `STATIC_ROOT=staticfiles/` + `collectstatic`
+- media local: `MEDIA_ROOT=media/`
+- para compartilhada, sirva `/static/` e `/media/` via cPanel/Apache (aliases ou regras do host)
+
+## Deploy em HostGator compartilhada (cPanel + Passenger)
+
+## 1) Estrutura no servidor
+
+Suba o projeto para uma pasta fora de `public_html` (exemplo):
+
+- `/home/USUARIO/apps/blog_de_leitura/`
+
+O arquivo `passenger_wsgi.py` deve estar nessa raiz do projeto.
+
+## 2) Criar app Python no cPanel
+
+No cPanel:
+
+1. Entre em `Setup Python App`.
+2. Crie app apontando para a pasta do projeto.
+3. Defina startup file como `passenger_wsgi.py`.
+4. Defina app URL para `https://SEU-DOMINIO.com`.
+
+## 3) Instalar dependencias
+
+Ative o virtualenv gerado pelo cPanel e rode:
+
+```bash
+pip install -r requirements.txt
+```
+
+## 4) Configurar variaveis de ambiente
+
+No painel da Python App, cadastre as variaveis listadas na secao anterior.
+
+## 5) Migracoes e estaticos
+
+Com o venv ativo:
+
+```bash
 python manage.py migrate
-
-## DEBUG e seguranca
-
-Em producao:
-
-- DEBUG deve permanecer desabilitado
-- cookies de sessao e CSRF devem ser seguros
-- SSL redirect deve permanecer habilitado
-- HSTS deve ficar ativo
-
-## Arquivos estaticos e uploads
-
-### Estaticos
-
-- STATIC_ROOT definido como staticfiles/
-- executar:
-
 python manage.py collectstatic --noinput
+python manage.py check --deploy
+```
 
-### Uploads
+## 6) Reiniciar app
 
-- desenvolvimento: armazenamento local em media/
-- producao: armazenamento em S3 via django-storages
+No cPanel Python App, clique em `Restart`.
 
-## Deploy com Vercel
+## Deploy em VPS (Ubuntu/Debian exemplo)
 
-### Pre-requisitos
+Exemplo com Gunicorn + Nginx:
 
-- projeto conectado a conta Vercel
-- variaveis de ambiente cadastradas no painel
-- acesso ao banco PostgreSQL de producao
-- bucket S3 configurado para media
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+export DJANGO_SETTINGS_MODULE=config.settings.production
+python manage.py migrate
+python manage.py collectstatic --noinput
+python manage.py check --deploy
+gunicorn config.wsgi:application --bind 127.0.0.1:8001
+```
 
-### Passos
+Configure Nginx como reverse proxy HTTPS para `127.0.0.1:8001`.
 
-1. configurar variaveis no painel da Vercel
-2. garantir DJANGO_SETTINGS_MODULE=config.settings.production
-3. executar deploy
-4. validar endpoints publicos e administrativos
-5. validar upload de imagem de capa
+## Comandos exatos de publicacao (resumo)
 
-## Checklist pos-deploy
+```bash
+cd /home/USUARIO/apps/blog_de_leitura
+source /home/USUARIO/virtualenv/blog_de_leitura/3.x/bin/activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py collectstatic --noinput
+python manage.py check --deploy
+```
 
-- aplicacao abre sem erro 500
-- login e logout funcionam
-- listagem publica exibe apenas posts publicados
-- painel admin respeita regras de permissao
-- static files carregam corretamente
-- upload de imagem funciona em producao
+Depois, reinicie o app no cPanel.
 
-## Troubleshooting rapido
+## Troubleshooting
 
-- erro de host invalido: revisar DJANGO_ALLOWED_HOSTS
-- erro CSRF em formulario: revisar DJANGO_CSRF_TRUSTED_ORIGINS com https://
-- erro de conexao com banco: revisar credenciais/host/porta
-- upload quebrado: revisar credenciais AWS e bucket
+- Erro `Invalid HTTP_HOST header`: revisar `ALLOWED_HOSTS`.
+- Erro CSRF em HTTPS: revisar `CSRF_TRUSTED_ORIGINS` com `https://`.
+- Erro de conexao MySQL: validar host/usuario/senha e liberacao do usuario no banco.
+- Upload nao salva em S3: conferir se todas variaveis AWS foram definidas (parcial gera erro por seguranca).
+- Arquivos estaticos nao carregam: executar `collectstatic` e revisar mapeamento `/static/`.
+- Erro de permissao em media local: ajustar permissao de escrita da pasta `media/`.
+
+## Registro da refatoracao tecnica
+
+Mudancas de organizacao:
+
+- centralizacao de leitura de env em `components/env.py`
+- centralizacao de estrategia de banco em `components/database.py`
+- centralizacao de estrategia de storage em `components/storage.py`
+- `development.py` e `production.py` agora sao composicoes mais enxutas
+
+Justificativa:
+
+- reduzir duplicacao e acoplamento em settings
+- facilitar manutencao e evolucao de ambientes
+- permitir HostGator com configuracao segura sem forcar infraestrutura especifica
