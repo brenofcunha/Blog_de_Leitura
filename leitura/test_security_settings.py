@@ -7,16 +7,17 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase
 
 
-REQUIRED_PROD_ENV = {
-    "POSTGRES_DB": "blog_leitura",
-    "POSTGRES_USER": "blog_user",
-    "POSTGRES_PASSWORD": "senha-forte",
-    "POSTGRES_HOST": "localhost",
-    "POSTGRES_PORT": "5432",
-    "AWS_STORAGE_BUCKET_NAME": "bucket-exemplo",
-    "AWS_S3_REGION_NAME": "us-east-1",
-    "AWS_ACCESS_KEY_ID": "ak-test",
-    "AWS_SECRET_ACCESS_KEY": "sk-test",
+BASE_PROD_ENV = {
+    "DEBUG": "0",
+    "SECRET_KEY": "segredo-super-forte",
+    "ALLOWED_HOSTS": "example.com,www.example.com",
+    "CSRF_TRUSTED_ORIGINS": "https://example.com,https://www.example.com",
+    "DATABASE_ENGINE": "mysql",
+    "MYSQL_DATABASE": "blog_leitura",
+    "MYSQL_USER": "blog_user",
+    "MYSQL_PASSWORD": "senha-forte",
+    "MYSQL_HOST": "localhost",
+    "MYSQL_PORT": "3306",
 }
 
 
@@ -26,16 +27,26 @@ def production_env(extra_env=None, removed=None):
     removed = removed or []
 
     backup = {}
-    tracked_keys = set(REQUIRED_PROD_ENV) | set(extra_env) | set(removed)
+    tracked_keys = set(BASE_PROD_ENV) | set(extra_env) | set(removed)
     tracked_keys.update(
         {
-            "DEBUG",
-            "SECRET_KEY",
             "DJANGO_SECRET_KEY",
-            "ALLOWED_HOSTS",
             "DJANGO_ALLOWED_HOSTS",
-            "CSRF_TRUSTED_ORIGINS",
             "DJANGO_CSRF_TRUSTED_ORIGINS",
+            "POSTGRES_DB",
+            "POSTGRES_USER",
+            "POSTGRES_PASSWORD",
+            "POSTGRES_HOST",
+            "POSTGRES_PORT",
+            "DB_NAME",
+            "DB_USER",
+            "DB_PASSWORD",
+            "DB_HOST",
+            "DB_PORT",
+            "AWS_STORAGE_BUCKET_NAME",
+            "AWS_S3_REGION_NAME",
+            "AWS_ACCESS_KEY_ID",
+            "AWS_SECRET_ACCESS_KEY",
         }
     )
 
@@ -46,7 +57,7 @@ def production_env(extra_env=None, removed=None):
         for key in tracked_keys:
             os.environ.pop(key, None)
 
-        os.environ.update(REQUIRED_PROD_ENV)
+        os.environ.update(BASE_PROD_ENV)
         os.environ.update(extra_env)
 
         for key in removed:
@@ -69,62 +80,27 @@ def load_production_settings_module():
 
 class ProductionSettingsSecurityTests(SimpleTestCase):
     def test_production_requires_secret_key(self):
-        with production_env(
-            {
-                "DEBUG": "0",
-                "ALLOWED_HOSTS": "example.com",
-                "CSRF_TRUSTED_ORIGINS": "https://example.com",
-            },
-            removed=["SECRET_KEY", "DJANGO_SECRET_KEY"],
-        ):
+        with production_env(removed=["SECRET_KEY", "DJANGO_SECRET_KEY"]):
             with self.assertRaises(ImproperlyConfigured):
                 load_production_settings_module()
 
     def test_production_rejects_debug_true(self):
-        with production_env(
-            {
-                "DEBUG": "1",
-                "SECRET_KEY": "segredo",
-                "ALLOWED_HOSTS": "example.com",
-                "CSRF_TRUSTED_ORIGINS": "https://example.com",
-            }
-        ):
+        with production_env({"DEBUG": "1"}):
             with self.assertRaises(ImproperlyConfigured):
                 load_production_settings_module()
 
     def test_production_rejects_wildcard_allowed_hosts(self):
-        with production_env(
-            {
-                "DEBUG": "0",
-                "SECRET_KEY": "segredo",
-                "ALLOWED_HOSTS": "*",
-                "CSRF_TRUSTED_ORIGINS": "https://example.com",
-            }
-        ):
+        with production_env({"ALLOWED_HOSTS": "*"}):
             with self.assertRaises(ImproperlyConfigured):
                 load_production_settings_module()
 
     def test_production_requires_https_csrf_origins(self):
-        with production_env(
-            {
-                "DEBUG": "0",
-                "SECRET_KEY": "segredo",
-                "ALLOWED_HOSTS": "example.com",
-                "CSRF_TRUSTED_ORIGINS": "http://example.com",
-            }
-        ):
+        with production_env({"CSRF_TRUSTED_ORIGINS": "http://example.com"}):
             with self.assertRaises(ImproperlyConfigured):
                 load_production_settings_module()
 
     def test_production_loads_with_valid_security_env(self):
-        with production_env(
-            {
-                "DEBUG": "0",
-                "SECRET_KEY": "segredo-super-forte",
-                "ALLOWED_HOSTS": "example.com,www.example.com",
-                "CSRF_TRUSTED_ORIGINS": "https://example.com,https://www.example.com",
-            }
-        ):
+        with production_env():
             settings_module = load_production_settings_module()
 
         self.assertFalse(settings_module.DEBUG)
@@ -137,3 +113,32 @@ class ProductionSettingsSecurityTests(SimpleTestCase):
         self.assertTrue(settings_module.CSRF_COOKIE_SECURE)
         self.assertTrue(settings_module.SECURE_SSL_REDIRECT)
         self.assertEqual(settings_module.X_FRAME_OPTIONS, "DENY")
+
+    def test_production_uses_local_media_storage_without_aws(self):
+        with production_env():
+            settings_module = load_production_settings_module()
+
+        self.assertEqual(
+            settings_module.STORAGES["default"]["BACKEND"],
+            "django.core.files.storage.FileSystemStorage",
+        )
+
+    def test_production_uses_s3_storage_when_aws_config_is_complete(self):
+        with production_env(
+            {
+                "AWS_STORAGE_BUCKET_NAME": "bucket-exemplo",
+                "AWS_S3_REGION_NAME": "us-east-1",
+                "AWS_ACCESS_KEY_ID": "ak-test",
+                "AWS_SECRET_ACCESS_KEY": "sk-test",
+            }
+        ):
+            settings_module = load_production_settings_module()
+
+        self.assertEqual(settings_module.STORAGES["default"]["BACKEND"], "storages.backends.s3.S3Storage")
+        self.assertTrue(settings_module.MEDIA_URL.startswith("https://bucket-exemplo.s3."))
+
+    def test_production_rejects_partial_aws_configuration(self):
+        with production_env({"AWS_STORAGE_BUCKET_NAME": "bucket-incompleto"}):
+            with self.assertRaises(ImproperlyConfigured):
+                load_production_settings_module()
+

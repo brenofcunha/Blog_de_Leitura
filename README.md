@@ -27,12 +27,12 @@ O Blog de Leitura existe para permitir que multiplos autores publiquem conteudo 
 
 - Python 3.13
 - Django 5.2
-- PostgreSQL (producao e alvo principal)
-- SQLite (fallback para desenvolvimento)
-- django-storages + boto3 (uploads em S3 na producao)
+- SQLite (desenvolvimento padrao)
+- PostgreSQL ou MySQL em producao (por variavel de ambiente)
+- django-storages + boto3 (S3 opcional para uploads em producao)
 - pytest, pytest-django, pytest-cov
 - black, isort, flake8
-- Vercel para deploy
+- HostGator (cPanel/Passenger ou VPS)
 
 ## Arquitetura em alto nivel
 
@@ -91,12 +91,12 @@ Use o arquivo .env.example como base e crie o seu .env.
 Ambiente local com SQLite (mais simples):
 
 DJANGO_SETTINGS_MODULE=config.settings.development
-USE_POSTGRES=0
+DATABASE_ENGINE=sqlite
 
 Ambiente local com PostgreSQL:
 
 DJANGO_SETTINGS_MODULE=config.settings.development
-USE_POSTGRES=1
+DATABASE_ENGINE=postgresql
 POSTGRES_DB=blog_leitura
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
@@ -176,9 +176,9 @@ Validacoes recomendadas antes de abrir PR:
 Resumo:
 
 - producao usa config.settings.production
-- banco principal: PostgreSQL
+- banco configuravel por variavel: MySQL ou PostgreSQL
 - arquivos estaticos: collectstatic para staticfiles/
-- uploads de midia: S3 via django-storages
+- uploads de midia: S3 (opcional) ou local seguro
 
 Guia completo em docs/deployment.md.
 
@@ -217,11 +217,12 @@ DEBUG=0
 SECRET_KEY=troque-por-uma-chave-forte
 ALLOWED_HOSTS=seudominio.com,www.seudominio.com
 CSRF_TRUSTED_ORIGINS=https://seudominio.com,https://www.seudominio.com
-POSTGRES_DB=blog_leitura
-POSTGRES_USER=blog_user
-POSTGRES_PASSWORD=senha-forte
-POSTGRES_HOST=host-do-banco
-POSTGRES_PORT=5432
+DATABASE_ENGINE=mysql
+MYSQL_DATABASE=blog_leitura
+MYSQL_USER=blog_user
+MYSQL_PASSWORD=senha-forte
+MYSQL_HOST=host-do-banco
+MYSQL_PORT=3306
 ```
 
 Checklist rapido de validacao:
