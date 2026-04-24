@@ -50,7 +50,6 @@ def admin_post_create(request):
                 post.status = Post.STATUS_DRAFT
 
             PostRepository.save(post)
-            form.save_related(post)
             return redirect("admin_posts")
     else:
         form = PostForm()
