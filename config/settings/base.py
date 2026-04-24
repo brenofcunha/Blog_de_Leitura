@@ -87,4 +87,3 @@ LOGIN_REDIRECT_URL = "post_login_redirect"
 LOGOUT_REDIRECT_URL = "home"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-

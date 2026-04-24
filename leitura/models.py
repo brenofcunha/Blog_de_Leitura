@@ -155,6 +155,3 @@ def ensure_user_profile(sender, instance, created, **kwargs):
         if profile.role != expected_role and (instance.is_staff or instance.is_superuser):
             profile.role = expected_role
             profile.save(update_fields=["role"])
-
-
-

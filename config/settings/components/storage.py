@@ -69,4 +69,3 @@ def get_storage_settings() -> dict[str, object]:
             },
         },
     }
-

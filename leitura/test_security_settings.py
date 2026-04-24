@@ -144,4 +144,3 @@ class ProductionSettingsSecurityTests(SimpleTestCase):
         with production_env({"AWS_STORAGE_BUCKET_NAME": "bucket-incompleto"}):
             with self.assertRaises(ImproperlyConfigured):
                 load_production_settings_module()
-
