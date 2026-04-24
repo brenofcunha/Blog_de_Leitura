@@ -10,8 +10,12 @@ from leitura.models import Category, Post, Tag
 class LeituraPagesTests(TestCase):
     def setUp(self):
         self.user_model = get_user_model()
-        self.autor = self.user_model.objects.create_user(username="autor1", password="123456789")
-        self.outro_autor = self.user_model.objects.create_user(username="autor2", password="123456789")
+        self.autor = self.user_model.objects.create_user(
+            username="autor1", password="123456789"
+        )
+        self.outro_autor = self.user_model.objects.create_user(
+            username="autor2", password="123456789"
+        )
 
     def test_home_page_loads(self):
         response = self.client.get(reverse("home"))
@@ -232,7 +236,9 @@ class LeituraPagesTests(TestCase):
         post_front.categories.add(categoria_front)
         post_front.tags.add(tag_css)
 
-        response_categoria = self.client.get(reverse("post_list"), {"categoria": categoria_backend.slug})
+        response_categoria = self.client.get(
+            reverse("post_list"), {"categoria": categoria_backend.slug}
+        )
         self.assertContains(response_categoria, "API com Django")
         self.assertNotContains(response_categoria, "Layout com CSS")
 
@@ -262,10 +268,14 @@ class LeituraPagesTests(TestCase):
 class ModelTests(TestCase):
     def setUp(self):
         self.user_model = get_user_model()
-        self.author = self.user_model.objects.create_user(username="model_autor", password="123456789")
+        self.author = self.user_model.objects.create_user(
+            username="model_autor", password="123456789"
+        )
 
     def test_user_creation(self):
-        user = self.user_model.objects.create_user(username="novo_usuario", password="senha_segura")
+        user = self.user_model.objects.create_user(
+            username="novo_usuario", password="senha_segura"
+        )
         self.assertTrue(user.pk is not None)
         self.assertEqual(user.username, "novo_usuario")
 
@@ -312,8 +322,12 @@ class ModelTests(TestCase):
 class PermissionTests(TestCase):
     def setUp(self):
         self.user_model = get_user_model()
-        self.author_a = self.user_model.objects.create_user(username="autor_a", password="123456789")
-        self.author_b = self.user_model.objects.create_user(username="autor_b", password="123456789")
+        self.author_a = self.user_model.objects.create_user(
+            username="autor_a", password="123456789"
+        )
+        self.author_b = self.user_model.objects.create_user(
+            username="autor_b", password="123456789"
+        )
         self.admin = self.user_model.objects.create_user(
             username="admin_user",
             password="123456789",

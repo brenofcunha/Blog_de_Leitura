@@ -28,18 +28,26 @@ def get_list_env_alias(primary_name: str, secondary_name: str, default: str = ""
     return [item.strip() for item in raw_value.split(",") if item.strip()]
 
 
-def get_required_env(name: str, error_context: str = "production") -> str:
+def get_required_env(
+    name: str, error_context: str = "production"
+) -> str:
     value = os.getenv(name)
     if value:
         return value
     raise ImproperlyConfigured(f"Environment variable '{name}' is required in {error_context}.")
 
 
-def get_required_env_alias(primary_name: str, secondary_name: str, error_context: str = "production") -> str:
+def get_required_env_alias(
+    primary_name: str,
+    secondary_name: str,
+    error_context: str = "production",
+) -> str:
     value = get_first_env(primary_name, secondary_name)
     if value:
         return value
     raise ImproperlyConfigured(
-        f"Environment variable '{primary_name}' (or '{secondary_name}') is required in {error_context}."
+        (
+            f"Environment variable '{primary_name}' (or '{secondary_name}') "
+            f"is required in {error_context}."
+        )
     )
-

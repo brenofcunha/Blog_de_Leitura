@@ -134,11 +134,13 @@ class ProductionSettingsSecurityTests(SimpleTestCase):
         ):
             settings_module = load_production_settings_module()
 
-        self.assertEqual(settings_module.STORAGES["default"]["BACKEND"], "storages.backends.s3.S3Storage")
+        self.assertEqual(
+            settings_module.STORAGES["default"]["BACKEND"],
+            "storages.backends.s3.S3Storage",
+        )
         self.assertTrue(settings_module.MEDIA_URL.startswith("https://bucket-exemplo.s3."))
 
     def test_production_rejects_partial_aws_configuration(self):
         with production_env({"AWS_STORAGE_BUCKET_NAME": "bucket-incompleto"}):
             with self.assertRaises(ImproperlyConfigured):
                 load_production_settings_module()
-

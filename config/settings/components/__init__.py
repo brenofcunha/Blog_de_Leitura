@@ -1,2 +1,1 @@
 """Composable settings helpers."""
-
