@@ -1,0 +1,60 @@
+{% extends "views/base.html" %}
+
+{% block title %}Meus livros | Portal de Posts{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="section-head">
+        <h1>Meus livros</h1>
+        <a class="button" href="{% url 'admin_book_new' %}">Adicionar livro</a>
+    </div>
+
+    <form method="get" class="filter-form" style="margin-bottom: 1rem;">
+        <input type="text" name="titulo" value="{{ title_filter }}" placeholder="Buscar por titulo ou autor">
+        <select name="status">
+            <option value="">Todos os status</option>
+            {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button class="button" type="submit">Filtrar</button>
+    </form>
+
+    {% if books %}
+        <table class="post-table">
+            <thead>
+                <tr>
+                    <th>Titulo</th>
+                    <th>Autor</th>
+                    <th>Status</th>
+                    <th>Avaliacao</th>
+                    <th>Acoes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author_name }}</td>
+                    <td>{{ book.get_status_display }}</td>
+                    <td>{% if book.rating %}{{ book.rating }}/5{% else %}—{% endif %}</td>
+                    <td>
+                        <a href="{% url 'admin_book_edit' book.id %}">Editar</a>
+                        <form method="post" action="{% url 'admin_book_delete' book.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" onclick="return confirm('Excluir este livro?')">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhum livro encontrado.</p>
+    {% endif %}
+
+    <p style="margin-top: 1rem;">
+        <a href="{% url 'admin_dashboard' %}">Voltar ao painel</a>
+    </p>
+</section>
+{% endblock %}

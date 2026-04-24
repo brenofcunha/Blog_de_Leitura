@@ -16,6 +16,7 @@ O Blog de Leitura existe para permitir que multiplos autores publiquem conteudo 
 - autenticacao com login/logout
 - painel administrativo para autores e admins
 - CRUD de posts com status rascunho/publicado
+- CRUD de livros com status de leitura (quero ler / lendo / lido) e avaliacao
 - busca publica por titulo, resumo e conteudo
 - filtros por categoria e tag
 - paginacao da lista publica
@@ -142,6 +143,10 @@ Exemplo de filtros:
 - /admin/posts/novo
 - /admin/posts/{id}/editar
 - /admin/posts/{id}/excluir
+- /admin/livros
+- /admin/livros/novo
+- /admin/livros/{id}/editar
+- /admin/livros/{id}/excluir
 
 ### Autenticacao
 
@@ -150,8 +155,8 @@ Exemplo de filtros:
 
 ## Regras de permissao (resumo)
 
-- Admin (is_staff/is_superuser) pode gerenciar qualquer post
-- Autor gerencia apenas os proprios posts
+- Admin (is_staff/is_superuser) pode gerenciar qualquer post ou livro
+- Autor gerencia apenas os proprios posts e livros
 - Usuario nao autenticado nao acessa area administrativa
 
 Detalhes completos em docs/permissions.md.
@@ -172,6 +177,22 @@ Validacoes recomendadas antes de abrir PR:
 - flake8 .
 
 ## Deploy e operacao
+
+### Docker (recomendado)
+
+O projeto inclui `Dockerfile` e `docker-compose.yml` prontos para uso.
+
+Subir com Docker Compose:
+
+```
+cp .env.example .env
+# edite .env com SECRET_KEY, ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS e credenciais do banco
+docker compose up --build -d
+```
+
+O servico `web` aplica as migracoes automaticamente e sobe o servidor na porta 8000.
+
+### HostGator / VPS tradicional
 
 Resumo:
 

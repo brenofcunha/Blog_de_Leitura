@@ -125,6 +125,63 @@ class Post(models.Model):
 		return self.author_id == user.id
 
 
+class Book(models.Model):
+	STATUS_READING = "lendo"
+	STATUS_READ = "lido"
+	STATUS_WISHLIST = "quero_ler"
+	STATUS_CHOICES = [
+		(STATUS_READING, "Lendo"),
+		(STATUS_READ, "Lido"),
+		(STATUS_WISHLIST, "Quero ler"),
+	]
+
+	title = models.CharField(max_length=200, db_index=True)
+	author_name = models.CharField(max_length=150)
+	slug = models.SlugField(max_length=230, unique=True, db_index=True)
+	description = models.TextField(blank=True)
+	cover_image = models.FileField(
+		upload_to="books/covers/",
+		blank=True,
+		null=True,
+		validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png", "webp"])],
+	)
+	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_WISHLIST, db_index=True)
+	rating = models.PositiveSmallIntegerField(null=True, blank=True)
+	added_by = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.CASCADE,
+		related_name="books",
+	)
+	categories = models.ManyToManyField(Category, related_name="books", blank=True)
+	tags = models.ManyToManyField(Tag, related_name="books", blank=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		ordering = ["-created_at"]
+
+	def __str__(self):
+		return f"{self.title} — {self.author_name}"
+
+	def save(self, *args, **kwargs):
+		if not self.slug:
+			base_slug = slugify(f"{self.title} {self.author_name}")[:210] or "livro"
+			slug = base_slug
+			index = 1
+			while Book.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+				slug = f"{base_slug}-{index}"
+				index += 1
+			self.slug = slug
+		super().save(*args, **kwargs)
+
+	def can_be_managed_by(self, user):
+		if not user.is_authenticated:
+			return False
+		if user.is_staff or user.is_superuser:
+			return True
+		return self.added_by_id == user.id
+
+
 @receiver(post_save, sender=User)
 def ensure_user_profile(sender, instance, created, **kwargs):
     if created:

@@ -1,0 +1,21 @@
+{% extends "views/base.html" %}
+
+{% block title %}{{ page_title }} | Portal de Posts{% endblock %}
+
+{% block content %}
+<section class="section" style="max-width: 760px;">
+    <div class="section-head">
+        <h1>{{ page_title }}</h1>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="login-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="button" type="submit">{{ submit_label }}</button>
+    </form>
+
+    <p style="margin-top: 1rem;">
+        <a href="{% url 'admin_books' %}">Voltar para a listagem de livros</a>
+    </p>
+</section>
+{% endblock %}

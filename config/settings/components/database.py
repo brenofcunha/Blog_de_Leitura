@@ -140,4 +140,16 @@ def get_database_settings(base_dir: Path, production: bool) -> dict[str, dict[st
     else:
         default_db = _build_sqlite_database(base_dir=base_dir, production=production)
 
+    conn_max_age = get_first_env("DATABASE_CONN_MAX_AGE")
+    if conn_max_age is not None:
+        try:
+            default_db["CONN_MAX_AGE"] = int(conn_max_age)
+        except ValueError:
+            pass
+    elif engine in {"postgresql", "mysql"}:
+        default_db["CONN_MAX_AGE"] = 60
+
+    if engine in {"postgresql", "mysql"}:
+        default_db["CONN_HEALTH_CHECKS"] = True
+
     return {"default": default_db}
