@@ -2,7 +2,7 @@ import os
 
 from django.core.exceptions import ImproperlyConfigured
 
-from .base import *  # noqa: F403
+from .base import *  # noqa: F401,F403
 from .base import BASE_DIR
 from .components.database import get_database_settings
 from .components.env import (
