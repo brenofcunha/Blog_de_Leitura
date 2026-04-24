@@ -11,7 +11,11 @@ from leitura.services.post_service import published_posts
 def render_basic_markdown(content: str):
     escaped = escape(content)
     escaped = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", escaped)
-    escaped = re.sub(r"\[(.+?)\]\((https?://[^\s)]+)\)", r'<a href="\2" target="_blank" rel="noopener noreferrer">\1</a>', escaped)
+    escaped = re.sub(
+        r"\[(.+?)\]\((https?://[^\s)]+)\)",
+        r'<a href="\2" target="_blank" rel="noopener noreferrer">\1</a>',
+        escaped,
+    )
 
     lines = escaped.split("\n")
     html_lines = []

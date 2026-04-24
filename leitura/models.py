@@ -78,7 +78,12 @@ class Post(models.Model):
         null=True,
         validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png", "webp"])],
     )
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_DRAFT, db_index=True)
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_DRAFT,
+        db_index=True,
+    )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -134,12 +139,22 @@ def ensure_user_profile(sender, instance, created, **kwargs):
             instance.is_active = False
             instance.save(update_fields=["is_active"])
 
-        default_role = UserProfile.ROLE_ADMIN if (instance.is_staff or instance.is_superuser) else UserProfile.ROLE_AUTHOR
+        default_role = (
+            UserProfile.ROLE_ADMIN
+            if (instance.is_staff or instance.is_superuser)
+            else UserProfile.ROLE_AUTHOR
+        )
         UserProfile.objects.create(user=instance, role=default_role)
     else:
         profile, _ = UserProfile.objects.get_or_create(user=instance)
-        expected_role = UserProfile.ROLE_ADMIN if (instance.is_staff or instance.is_superuser) else profile.role
+        expected_role = (
+            UserProfile.ROLE_ADMIN
+            if (instance.is_staff or instance.is_superuser)
+            else profile.role
+        )
         if profile.role != expected_role and (instance.is_staff or instance.is_superuser):
             profile.role = expected_role
             profile.save(update_fields=["role"])
+
+
 
