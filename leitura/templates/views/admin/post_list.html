@@ -3,34 +3,39 @@
 {% block title %}Gerenciar Posts | Portal de Posts{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="section-head">
-        <h1>Interface de posts</h1>
-        <p>Autores editam seus posts. Administradores veem e gerenciam todos.</p>
+<section class="section admin-shell">
+    <div class="section-head admin-head">
+        <div>
+            <p class="eyebrow">Area administrativa</p>
+            <h1>Interface de posts</h1>
+            <p>Autores editam seus posts. Administradores veem e gerenciam todos.</p>
+        </div>
+        <a class="button" href="{% url 'admin_post_new' %}">Criar novo post</a>
     </div>
 
-    <p>
-        <a class="button" href="{% url 'admin_post_new' %}">Criar novo post</a>
-    </p>
-
-    <form method="get" class="login-form" style="margin-top: 1rem; max-width: 800px;">
-        <p>
-            <label for="titulo">Filtrar por titulo</label>
-            <input id="titulo" type="text" name="titulo" value="{{ title_filter }}">
-        </p>
-        <p>
-            <label for="status">Filtrar por status</label>
-            <select id="status" name="status">
-                <option value="">Todos</option>
-                {% for value, label in status_choices %}
-                    <option value="{{ value }}" {% if value == status_filter %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </p>
-        <button class="button" type="submit">Aplicar filtros</button>
+    <form method="get" class="admin-filter-card">
+        <div class="admin-filter-grid">
+            <div class="admin-field">
+                <label for="titulo">Filtrar por titulo</label>
+                <input class="admin-input" id="titulo" type="text" name="titulo" value="{{ title_filter }}" placeholder="Digite uma palavra-chave">
+            </div>
+            <div class="admin-field">
+                <label for="status">Filtrar por status</label>
+                <select class="admin-input" id="status" name="status">
+                    <option value="">Todos</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if value == status_filter %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="admin-filter-actions">
+                <button class="button" type="submit">Aplicar filtros</button>
+                <a class="button button-outline" href="{% url 'admin_posts' %}">Limpar</a>
+            </div>
+        </div>
     </form>
 
-    <div class="admin-table-wrap" style="margin-top: 1rem;">
+    <div class="admin-table-wrap">
         <table class="admin-table">
             <thead>
                 <tr>
@@ -44,21 +49,27 @@
             <tbody>
                 {% for post in posts %}
                     <tr>
-                        <td>{{ post.title }}</td>
-                        <td>{{ post.get_status_display }}</td>
+                        <td>
+                            <a class="admin-post-link" href="{% url 'admin_post_edit' post.id %}">{{ post.title }}</a>
+                        </td>
+                        <td>
+                            <span class="admin-status-badge {% if post.status == 'publicado' %}is-published{% else %}is-draft{% endif %}">
+                                {{ post.get_status_display }}
+                            </span>
+                        </td>
                         <td>{{ post.author.username }}</td>
                         <td>{{ post.updated_at|date:"d/m/Y H:i" }}</td>
-                        <td>
-                            <a href="{% url 'admin_post_edit' post.id %}">Editar</a>
-                            <form method="post" action="{% url 'admin_post_delete' post.id %}" style="display: inline; margin-left: 0.5rem;">
+                        <td class="admin-row-actions">
+                            <a class="button button-outline" href="{% url 'admin_post_edit' post.id %}">Editar</a>
+                            <form method="post" action="{% url 'admin_post_delete' post.id %}" onsubmit="return confirm('Tem certeza que deseja excluir este post?');">
                                 {% csrf_token %}
-                                <button type="submit">Excluir</button>
+                                <button class="button button-danger" type="submit">Excluir</button>
                             </form>
                         </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="5">Nenhum post encontrado.</td>
+                        <td colspan="5" class="admin-empty">Nenhum post encontrado com os filtros atuais.</td>
                     </tr>
                 {% endfor %}
             </tbody>

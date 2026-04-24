@@ -50,6 +50,7 @@ def admin_post_create(request):
                 post.status = Post.STATUS_DRAFT
 
             PostRepository.save(post)
+            form.save_related(post)
             return redirect("admin_posts")
     else:
         form = PostForm()
@@ -57,7 +58,13 @@ def admin_post_create(request):
     return render(
         request,
         "views/admin/post_form.html",
-        {"form": form, "page_title": "Novo post", "submit_label": "Criar post"},
+        {
+            "form": form,
+            "page_title": "Novo post",
+            "submit_label": "Criar post",
+            "quick_category_options": PostForm.QUICK_CATEGORY_OPTIONS,
+            "quick_tag_options": PostForm.QUICK_TAG_OPTIONS,
+        },
     )
 
 
@@ -78,6 +85,7 @@ def admin_post_edit(request, post_id):
                 edited_post.status = Post.STATUS_DRAFT
 
             PostRepository.save(edited_post)
+            form.save_related(edited_post)
             return redirect("admin_posts")
     else:
         form = PostForm(instance=post)
@@ -85,7 +93,13 @@ def admin_post_edit(request, post_id):
     return render(
         request,
         "views/admin/post_form.html",
-        {"form": form, "page_title": "Editar post", "submit_label": "Salvar alteracoes"},
+        {
+            "form": form,
+            "page_title": "Editar post",
+            "submit_label": "Salvar alteracoes",
+            "quick_category_options": PostForm.QUICK_CATEGORY_OPTIONS,
+            "quick_tag_options": PostForm.QUICK_TAG_OPTIONS,
+        },
     )
 
 

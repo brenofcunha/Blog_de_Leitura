@@ -8,24 +8,36 @@
         <h1>Todos os posts publicados</h1>
         <p>Conteudo ordenado por data de publicacao mais recente.</p>
     </div>
-    <form method="get" class="filter-form">
-        <input type="search" name="q" value="{{ query }}" placeholder="Buscar por titulo, resumo ou conteudo">
-        <select name="categoria">
-            <option value="">Todas as categorias</option>
-            {% for category in categories %}
-                <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
-            {% endfor %}
-        </select>
-        <select name="tag">
-            <option value="">Todas as tags</option>
-            {% for tag in tags %}
-                <option value="{{ tag.slug }}" {% if selected_tag == tag.slug %}selected{% endif %}>{{ tag.name }}</option>
-            {% endfor %}
-        </select>
-        <button class="button" type="submit">Aplicar</button>
+    <form method="get" class="filter-form filter-card">
+        <div class="filter-input-group">
+            <label for="q">Busca</label>
+            <input id="q" type="search" name="q" value="{{ query }}" placeholder="Buscar por titulo, resumo ou conteudo">
+        </div>
+        <div class="filter-input-group">
+            <label for="categoria">Categoria</label>
+            <select id="categoria" name="categoria">
+                <option value="">Todas as categorias</option>
+                {% for category in categories %}
+                    <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-input-group">
+            <label for="tag">Tag</label>
+            <select id="tag" name="tag">
+                <option value="">Todas as tags</option>
+                {% for tag in tags %}
+                    <option value="{{ tag.slug }}" {% if selected_tag == tag.slug %}selected{% endif %}>{{ tag.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button class="button" type="submit">Aplicar</button>
+            <a class="button button-outline" href="{% url 'post_list' %}">Limpar</a>
+        </div>
     </form>
     {% if pagination_ready %}
-        <p class="meta" style="margin-bottom: 14px;">Estrutura pronta para paginação na próxima etapa editorial.</p>
+        <p class="meta filter-note">Estrutura pronta para paginacao na proxima etapa editorial.</p>
     {% endif %}
     <div class="recent-list">
         {% for post in posts %}
@@ -38,11 +50,11 @@
                 {% if post.summary %}
                     <p>{{ post.summary }}</p>
                 {% endif %}
-                <p class="meta" style="margin-top:8px;">
-                    {% for category in post.categories.all %}#{{ category.name }} {% endfor %}
-                    {% for tag in post.tags.all %}<span style="opacity:0.85;">{{ tag.name }}</span>{% if not forloop.last %}, {% endif %}{% endfor %}
+                <p class="meta post-meta-list">
+                    {% for category in post.categories.all %}<span class="meta-chip">#{{ category.name }}</span>{% endfor %}
+                    {% for tag in post.tags.all %}<span class="meta-chip">{{ tag.name }}</span>{% endfor %}
                 </p>
-                <p style="margin-top: 10px;">
+                <p class="post-card-actions">
                     <a class="button" href="{% url 'post_detail' post.slug %}">Ler completo</a>
                 </p>
             </article>

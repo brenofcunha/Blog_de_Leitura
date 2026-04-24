@@ -7,8 +7,10 @@
     <p class="eyebrow">Area Publica</p>
     <h1>Portal de leitura com conteudo editorial dinamico</h1>
     <p class="lead">Explore os posts publicados no portal, com destaques visuais e leitura organizada por data de publicacao.</p>
-    <p class="meta" style="margin-top: 10px;">{{ published_total }} post{{ published_total|pluralize }} publicado{{ published_total|pluralize:"s" }}</p>
-    <a class="button" href="{% url 'post_list' %}">Ver todos os posts</a>
+    <p class="meta hero-meta">{{ published_total }} post{{ published_total|pluralize }} publicado{{ published_total|pluralize:"s" }}</p>
+    <div class="hero-actions">
+        <a class="button" href="{% url 'post_list' %}">Ver todos os posts</a>
+    </div>
 </section>
 
 <section class="section">

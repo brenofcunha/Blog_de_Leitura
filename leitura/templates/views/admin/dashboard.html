@@ -3,29 +3,36 @@
 {% block title %}Painel | Portal de Posts{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="section-head">
-        <h1>Painel administrativo</h1>
-        <p>Gerencie seus conteudos e acompanhe o status de publicacao.</p>
+<section class="section admin-shell">
+    <div class="section-head admin-head">
+        <div>
+            <p class="eyebrow">Area administrativa</p>
+            <h1>Painel administrativo</h1>
+            <p>Gerencie seus conteudos e acompanhe o status de publicacao.</p>
+        </div>
+        <a class="button" href="{% url 'admin_post_new' %}">Criar novo post</a>
     </div>
 
-    <div class="category-grid">
-        <article class="category-card">
-            <h3>Total de posts</h3>
-            <p>{{ total_posts }}</p>
+    <div class="admin-metric-grid">
+        <article class="admin-metric-card">
+            <p class="admin-metric-label">Total de posts</p>
+            <p class="admin-metric-value">{{ total_posts }}</p>
+            <p class="meta">Todos os posts do seu escopo de gerenciamento.</p>
         </article>
-        <article class="category-card">
-            <h3>Rascunhos</h3>
-            <p>{{ draft_count }}</p>
+        <article class="admin-metric-card">
+            <p class="admin-metric-label">Rascunhos</p>
+            <p class="admin-metric-value">{{ draft_count }}</p>
+            <p class="meta">Conteudos salvos e ainda nao publicados.</p>
         </article>
-        <article class="category-card">
-            <h3>Publicados</h3>
-            <p>{{ published_count }}</p>
+        <article class="admin-metric-card">
+            <p class="admin-metric-label">Publicados</p>
+            <p class="admin-metric-value">{{ published_count }}</p>
+            <p class="meta">Posts visiveis para leitores no portal.</p>
         </article>
     </div>
 
-    <p style="margin-top: 1rem;">
+    <div class="admin-dashboard-actions">
         <a class="button" href="{% url 'admin_posts' %}">Gerenciar posts</a>
-    </p>
+    </div>
 </section>
 {% endblock %}

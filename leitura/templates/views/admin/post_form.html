@@ -3,22 +3,168 @@
 {% block title %}{{ page_title }} | Portal de Posts{% endblock %}
 
 {% block content %}
-<section class="section" style="max-width: 760px;">
-    <div class="section-head">
-        <h1>{{ page_title }}</h1>
-    </div>
-
-    <form method="post" enctype="multipart/form-data" class="login-form">
+<section class="section editor-page editor-page-compact">
+    <form method="post" enctype="multipart/form-data" class="editor-form editor-form-compact" novalidate>
         {% csrf_token %}
-        {{ form.as_p }}
-        <p class="meta" style="margin-bottom: 12px;">Editor em Markdown: use # para titulos, * para listas, [texto](url) para links e ![alt](url) para imagens.</p>
-        <button class="button" type="submit" name="action" value="save_draft">Salvar rascunho</button>
-        <button class="button" type="submit" name="action" value="publish">Publicar</button>
-        <button class="button" type="submit" name="action" value="save">{{ submit_label }}</button>
-    </form>
 
-    <p style="margin-top: 1rem;">
-        <a href="{% url 'admin_posts' %}">Voltar para a listagem</a>
-    </p>
+        {% if form.non_field_errors %}
+            <div class="editor-alert" role="alert" aria-live="polite">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="editor-layout editor-layout-compact">
+            <div class="editor-main">
+                <article class="editor-card">
+                    <div class="editor-card-head">
+                        <h2>Titulo</h2>
+                    </div>
+
+                    <div class="editor-field">
+                        {{ form.title }}
+                        {% for error in form.title.errors %}
+                            <p class="editor-field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                        <h2>Resumo</h2>
+                    <div class="editor-field">
+                        {{ form.summary }}
+                        {% for error in form.summary.errors %}
+                            <p class="editor-field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </article>
+
+                <article class="editor-card">
+                    <div class="editor-card-head">
+                        <h2>Conteudo do post</h2>
+                    </div>
+
+                    <div class="editor-field editor-content-field">
+                        {{ form.content }}
+                        {% for error in form.content.errors %}
+                            <p class="editor-field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </article>
+            </div>
+
+            <aside class="editor-sidebar" aria-label="Configuracoes de publicacao">
+                <article class="editor-card editor-sidebar-card">
+                    <div class="editor-card-head">
+                        <h2>Imagem de capa</h2>
+                    <div class="editor-field">
+                        <div class="editor-upload-box">
+                            {{ form.cover_image }}
+                        </div>
+                        {% if form.instance.cover_image %}
+                            <img class="editor-cover-preview" src="{{ form.instance.cover_image.url }}" alt="Preview da capa atual">
+                        {% endif %}
+                        {% for error in form.cover_image.errors %}
+                            <p class="editor-field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </article>
+
+                <article class="editor-card editor-sidebar-card">
+                    <div class="editor-card-head">
+                        <h2>Classificacao</h2>
+
+
+                    <div class="editor-field">
+                        {{ form.custom_classification }}
+                        {% for error in form.custom_classification.errors %}
+                            <p class="editor-field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                        <h2>categorias</h2>
+                    <div class="editor-field">
+                        <div class="editor-chip-grid">
+                            {{ form.categories }}
+                        </div>
+                        {% for error in form.categories.errors %}
+                            <p class="editor-field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="editor-field">
+                        {{ form.custom_categories }}
+                        {% for error in form.custom_categories.errors %}
+                            <p class="editor-field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                        <h2>tags</h2>
+                    <div class="editor-field">
+                        <div class="editor-chip-grid">
+                            {{ form.tags }}
+                        </div>
+                        {% for error in form.tags.errors %}
+                            <p class="editor-field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="editor-field">
+                        {{ form.custom_tags }}
+                        {% for error in form.custom_tags.errors %}
+                            <p class="editor-field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </article>
+
+                <article class="editor-card editor-sidebar-card editor-actions">
+                    <div class="editor-card-head">
+                        <h2>Acoes</h2>
+                    </div>
+
+                    <div class="editor-actions-group">
+                        <button class="button editor-btn-draft" type="submit" name="action" value="save_draft">Salvar rascunho</button>
+                        <button class="button button-outline editor-btn-secondary" type="submit" name="action" value="save">{{ submit_label }}</button>
+                        <button class="button editor-btn-primary" type="submit" name="action" value="publish">Publicar</button>
+                        <a class="button button-outline editor-btn-secondary" href="{% url 'admin_posts' %}">Voltar para listagem</a>
+                    </div>
+                </article>
+            </aside>
+        </div>
+    </form>
 </section>
+
+<script>
+    (function () {
+        const appendValue = (input, value) => {
+            if (!input || !value) return;
+            const parts = input.value
+                .split(',')
+                .map(item => item.trim())
+                .filter(Boolean);
+
+            if (!parts.some(item => item.toLowerCase() === value.toLowerCase())) {
+                parts.push(value);
+            }
+            input.value = parts.join(', ');
+            input.focus();
+        };
+
+        document.querySelectorAll('[data-input-target]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-input-target');
+                const value = button.getAttribute('data-value');
+                appendValue(document.getElementById(targetId), value);
+            });
+        });
+
+        document.querySelectorAll('[data-select-target]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-select-target');
+                const value = button.getAttribute('data-value');
+                const select = document.getElementById(targetId);
+                if (select) {
+                    select.value = value;
+                    select.focus();
+                }
+            });
+        });
+    })();
+</script>
 {% endblock %}

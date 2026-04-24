@@ -3,22 +3,69 @@
 {% block title %}Login | Blog de Leitura{% endblock %}
 
 {% block content %}
-<section class="card hero" style="max-width: 520px; margin: 2rem auto;">
-    <p class="eyebrow">Acesso de conta</p>
-    <h1>Entrar no Portal de Posts</h1>
+<section class="section auth-shell">
+    <article class="auth-card">
+        <div class="auth-head">
+            <p class="eyebrow">Acesso de conta</p>
+            <h1>Entrar no Portal de Posts</h1>
+            <p class="meta">Use suas credenciais para criar, editar e publicar conteudos.</p>
+        </div>
 
-    {% if form.errors %}
-        <p>Usuário ou senha inválidos. Tente novamente.</p>
-    {% endif %}
+        {% if form.non_field_errors %}
+            <div class="admin-alert" role="alert" aria-live="polite">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% elif form.errors %}
+            <div class="admin-alert" role="alert" aria-live="polite">
+                <p>Usuario ou senha invalidos. Tente novamente.</p>
+            </div>
+        {% endif %}
 
-    <form method="post" class="login-form">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="button" type="submit">Entrar</button>
-    </form>
+        <form method="post" class="auth-form">
+            {% csrf_token %}
 
-    <p>
-        Quer apenas explorar? <a href="{% url 'home' %}">Continuar como visitante</a>.
-    </p>
+            <div class="admin-field">
+                <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                <input
+                    class="admin-input"
+                    type="text"
+                    name="{{ form.username.html_name }}"
+                    id="{{ form.username.id_for_label }}"
+                    value="{{ form.username.value|default_if_none:'' }}"
+                    autocomplete="username"
+                    required
+                >
+                {% for error in form.username.errors %}
+                    <p class="admin-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="admin-field">
+                <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                <input
+                    class="admin-input"
+                    type="password"
+                    name="{{ form.password.html_name }}"
+                    id="{{ form.password.id_for_label }}"
+                    autocomplete="current-password"
+                    required
+                >
+                {% for error in form.password.errors %}
+                    <p class="admin-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+
+            <div class="auth-actions">
+                <button class="button" type="submit">Entrar</button>
+                <a class="button button-outline" href="{% url 'home' %}">Continuar como visitante</a>
+            </div>
+        </form>
+    </article>
 </section>
 {% endblock %}
