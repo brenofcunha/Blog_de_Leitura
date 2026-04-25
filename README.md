@@ -171,6 +171,19 @@ Validacoes recomendadas antes de abrir PR:
 - isort --check-only .
 - flake8 .
 
+## Fluxo rapido de branch e PR
+
+Padrao recomendado para contribuir:
+
+1. Criar branch descritiva a partir da `main`.
+2. Fazer commits pequenos e com uma responsabilidade por commit.
+3. Abrir PR para `main` usando o template do repositório.
+4. Confirmar validacoes locais antes de solicitar revisão.
+
+Exemplo para mudanças de documentação:
+
+- `feature/docs-readme-update`
+
 ## Deploy e operacao
 
 Resumo:

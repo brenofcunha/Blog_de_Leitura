@@ -3,7 +3,7 @@
 ## Fluxo de branches
 - `main`: branch de produção.
 - `develop`: branch de integração contínua (recomendado criar no repositório remoto).
-- `feat/*`: novas funcionalidades.
+- `feat/*` ou `feature/*`: novas funcionalidades.
 - `fix/*`: correções.
 - `chore/*`: manutenção técnica.
 
@@ -14,6 +14,12 @@
 4. Aguarde CI verde.
 5. Revisão de código obrigatória.
 6. Merge com squash para manter histórico limpo.
+
+### Checklist mínimo antes do PR para `main`
+- Rodar `python manage.py check`
+- Rodar `python manage.py test`
+- Garantir que o escopo do PR corresponde ao nome da branch
+- Confirmar que a descrição foi preenchida no template
 
 ## Critérios de aprovação
 - CI aprovado.
